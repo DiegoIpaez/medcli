@@ -1,5 +1,5 @@
-from .database.config import init_db, db
 from .database.models import ObraSocial, Paciente, Medico, Turno
+from .database.connection import connect_db, db
 
 SEP = "─" * 80
 
@@ -84,7 +84,7 @@ def show_turnos():
 
 
 def main():
-    init_db()
+    connect_db()
 
     show_obras_sociales()
     show_medicos()
