@@ -1,5 +1,5 @@
-from .models import db
 from .migration import migrate
+from .models import db
 
 DB_PATH = "data/clinica.db"
 

@@ -1,6 +1,5 @@
 from .models import db
 
-
 TURNOS_SPECIFIC_TRIGGERS = [
     """
     CREATE TRIGGER IF NOT EXISTS trg_turnos_duracion_entre_turno

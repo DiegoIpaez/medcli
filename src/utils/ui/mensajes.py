@@ -1,4 +1,4 @@
-from .colores import GREEN, RED, YELLOW, CYAN, RESET
+from .colores import CYAN, GREEN, RED, RESET, YELLOW
 
 
 def _mostrar(color, prefijo, texto):

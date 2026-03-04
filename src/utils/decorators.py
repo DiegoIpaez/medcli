@@ -1,5 +1,6 @@
 from functools import wraps
-from .ui.layout import limpiar, encabezado
+
+from .ui.layout import encabezado, limpiar
 
 
 def vista(titulo: str):

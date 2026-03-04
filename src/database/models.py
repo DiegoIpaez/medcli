@@ -1,15 +1,16 @@
 import datetime
+
 from peewee import (
-    SqliteDatabase,
-    Model,
     AutoField,
-    IntegerField,
-    TextField,
     BooleanField,
-    ForeignKeyField,
+    CharField,
     DateField,
     DateTimeField,
-    CharField,
+    ForeignKeyField,
+    IntegerField,
+    Model,
+    SqliteDatabase,
+    TextField,
 )
 
 db = SqliteDatabase(

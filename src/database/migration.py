@@ -1,7 +1,7 @@
 import sqlite3
-from .models import ObraSocial, Paciente, Medico, Turno
-from .triggers import crear_timestamp_triggers, crear_turnos_triggers
 
+from .models import Medico, ObraSocial, Paciente, Turno
+from .triggers import crear_timestamp_triggers, crear_turnos_triggers
 
 DB_PATH = "data/clinica.db"
 TIMESTAMP_TABLES = ["obras_sociales", "pacientes", "medicos", "turnos"]
@@ -43,7 +43,7 @@ def needs_triggers():
         }
 
         return not required_triggers.issubset(existing_triggers)
-    except:
+    except Exception:
         return True
 
 

@@ -1,5 +1,6 @@
 import os
-from .colores import CYAN, BOLD, RESET
+
+from .colores import BOLD, CYAN, RESET
 
 
 def limpiar():

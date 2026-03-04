@@ -1,4 +1,4 @@
-from .colores import YELLOW, WHITE, DIM, RESET
+from .colores import DIM, RESET, WHITE, YELLOW
 from .mensajes import error
 
 
