@@ -9,7 +9,8 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "peewee (>=4.0.1,<5.0.0)"
+    "peewee (>=4.0.1,<5.0.0)",
+    "tabulate (>=0.10.0,<0.11.0)",
 ]
 
 
