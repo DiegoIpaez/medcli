@@ -4,6 +4,7 @@ from ...ui.colores import BOLD, CYAN, DIM, GREEN, RED, RESET, YELLOW
 from ...ui.input import pausar
 from ...ui.layout import limpiar
 from ..medicos.medicos_menu import menu_medicos
+from ..pacientes.pacientes_menu import menu_pacientes
 
 BANNER = r"""
    ____ _     ___ _   _ ___ ____ _
@@ -37,7 +38,7 @@ def menu_principal():
         opcion = input(f"  {YELLOW}Selecciona una opcion: {RESET}").strip()
 
         if opcion == "1":
-            print("No implementado aún.")
+            menu_pacientes()
         elif opcion == "2":
             menu_medicos()
         elif opcion == "3":
