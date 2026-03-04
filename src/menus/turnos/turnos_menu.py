@@ -6,9 +6,9 @@ from ...ui.mensajes import (
     error,
 )
 from .turnos_vistas import (
-    crear_turno,
     agenda_diaria,
     cambiar_estado,
+    crear_turno,
     registrar_duracion,
     turnos_por_paciente,
 )

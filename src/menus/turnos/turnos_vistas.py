@@ -91,9 +91,7 @@ def _seleccionar_paciente():
 
 def _formato_duracion(turno):
     return (
-        f"{turno.duracion_real}'"
-        if turno.duracion_real
-        else f"{turno.duracion_min}' (est.)"
+        f"{turno.duracion_real}'" if turno.duracion_real else f"{turno.duracion_min}' (est.)"
     )
 
 
@@ -125,8 +123,9 @@ def crear_turno():
 
     notas = pedir("Notas (opcional)", requerido=False)
     turnos_service.crear_turno(paciente, medico, fecha, horario, entre_turno, notas)
+    fecha_str = fecha.strftime("%d/%m/%Y")
     exito(
-        f"Turno creado: {paciente.nombre} con {medico.nombre} el {fecha.strftime('%d/%m/%Y')} a las {horario}."
+        f"Turno creado: {paciente.nombre} con {medico.nombre} el {fecha_str} a las {horario}."
     )
     pausar()
 
@@ -183,10 +182,9 @@ def cambiar_estado():
         pausar()
         return
 
+    fecha = turno.fecha.strftime("%d/%m/%Y")
     info(f"Turno #{turno.id}: {turno.paciente.nombre} con {turno.medico.nombre}")
-    info(
-        f"Fecha: {turno.fecha.strftime('%d/%m/%Y')} {turno.horario} — Estado actual: {turno.estado}"
-    )
+    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado}")
 
     print(f"\n  {CYAN}Nuevos estados disponibles:{RESET}")
     for i, e in enumerate(ESTADOS, 1):
@@ -214,15 +212,12 @@ def registrar_duracion():
 
     if turno.estado != "ATENDIDO":
         advertencia(
-            f"El turno tiene estado '{turno.estado}'. Se recomienda marcarlo como ATENDIDO primero."
+            f"El turno tiene estado '{turno.estado}'. Marcarlo como ATENDIDO primero."
         )
-
-    info(
-        f"Turno #{turno.id}: {turno.paciente.nombre} — {turno.fecha.strftime('%d/%m/%Y')} {turno.horario}"
-    )
-    info(
-        f"Duración estimada: {turno.duracion_min} min\nDuración real actual: {turno.duracion_real or 'no registrada'}"
-    )
+    fecha = turno.fecha.strftime("%d/%m/%Y")
+    info(f"Turno #{turno.id}: {turno.paciente.nombre} — {fecha} {turno.horario}")
+    info(f"Duración estimada: {turno.duracion_min} minutos")
+    info(f"Duración real actual: {turno.duracion_real or 'no registrada'}")
 
     while True:
         dur_str = pedir("Duración real (en minutos)")
@@ -265,9 +260,5 @@ def turnos_por_paciente():
         for t in turnos
     ]
 
-    tabla(
-        filas, ["ID", "Fecha", "Hora", "Médico", "Especialidad", "Estado", "Duración"]
-    )
+    tabla(filas, ["ID", "Fecha", "Hora", "Médico", "Especialidad", "Estado", "Duración"])
     pausar()
-
-

@@ -1,6 +1,6 @@
 from ...ui.input import pausar
-from ...ui.mensajes import error
 from ...ui.layout import menu_opciones
+from ...ui.mensajes import error
 from .medicos_vistas import (
     alta_medico,
     buscar_medico,

@@ -1,12 +1,12 @@
 from ...ui.input import pausar
-from ...ui.mensajes import error
 from ...ui.layout import menu_opciones
+from ...ui.mensajes import error
 from .pacientes_vistas import (
     buscar_paciente,
     crear_paciente,
     editar_paciente,
-    listar_pacientes,
     eliminar_paciente,
+    listar_pacientes,
 )
 
 

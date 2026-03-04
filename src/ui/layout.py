@@ -1,7 +1,8 @@
 import os
+
 from tabulate import tabulate
 
-from .colores import BOLD, CYAN, RESET, RED, GREEN, YELLOW
+from .colores import BOLD, CYAN, GREEN, RED, RESET, YELLOW
 
 
 def limpiar():

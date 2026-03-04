@@ -23,7 +23,7 @@ def listar_medicos(solo_activos: bool = False):
     query = Medico.select().order_by(Medico.nombre)
 
     if solo_activos:
-        query = query.where(Medico.activo == True)
+        query = query.where(Medico.activo == 1)
 
     return list(query)
 

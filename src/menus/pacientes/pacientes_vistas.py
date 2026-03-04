@@ -12,13 +12,13 @@ from ...ui.input import (
     pausar,
     pedir,
 )
+from ...ui.layout import tabla
 from ...ui.mensajes import (
     advertencia,
     error,
     exito,
     info,
 )
-from ...ui.layout import tabla
 from ...utils.decorators import vista
 from . import pacientes_servicio
 
@@ -133,9 +133,7 @@ def editar_paciente():
         pausar()
         return
 
-    os_actual = (
-        paciente.obra_social.nombre if paciente.obra_social else "Sin obra social"
-    )
+    os_actual = paciente.obra_social.nombre if paciente.obra_social else "Sin obra social"
     info(f"Editando: {paciente.nombre} | {paciente.cuit} | {os_actual}")
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
@@ -154,9 +152,7 @@ def editar_paciente():
         fallback=paciente.obra_social,
     )
 
-    pacientes_servicio.actualizar_paciente(
-        paciente, nombre, cuit, fecha_nac, obra_social
-    )
+    pacientes_servicio.actualizar_paciente(paciente, nombre, cuit, fecha_nac, obra_social)
     exito(f"Paciente '{nombre.upper()}' actualizado.")
     pausar()
 
@@ -178,9 +174,7 @@ def eliminar_paciente():
     turnos_count = pacientes_servicio.contar_turnos(paciente)
     advertencia(f"'{paciente.nombre}' tiene {turnos_count} turno(s) asociado(s).")
 
-    if not confirmar(
-        f"¿Eliminar a '{paciente.nombre}'? Esta acción no se puede deshacer"
-    ):
+    if not confirmar(f"¿Eliminar a '{paciente.nombre}'? Esta acción no se puede deshacer"):
         info("Operación cancelada.")
         pausar()
         return

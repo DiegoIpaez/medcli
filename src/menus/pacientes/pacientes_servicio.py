@@ -1,5 +1,6 @@
 import datetime
-from ...database.models import Paciente, ObraSocial
+
+from ...database.models import ObraSocial, Paciente
 
 
 def get_all_obras_sociales():

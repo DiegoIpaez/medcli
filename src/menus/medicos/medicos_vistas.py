@@ -12,13 +12,13 @@ from ...ui.input import (
     pausar,
     pedir,
 )
+from ...ui.layout import tabla
 from ...ui.mensajes import (
     advertencia,
     error,
     exito,
     info,
 )
-from ...ui.layout import tabla
 from ...utils.decorators import vista
 from . import medicos_servicio
 
@@ -115,9 +115,10 @@ def editar_medico():
         else 1
     )
 
-    esp_input = input(
-        f"\n  {YELLOW}  Especialidad [{esp_actual_idx} - {medico.especialidad}] (Enter para mantener): {RESET}"
-    ).strip()
+    titulo_esp = (
+        f"Especialidad [{esp_actual_idx} - {medico.especialidad}] (Enter para mantener)"
+    )
+    esp_input = input(f"\n  {YELLOW}  {titulo_esp}: {RESET}").strip()
 
     especialidad = medico.especialidad
     if esp_input.isdigit() and 1 <= int(esp_input) <= len(ESPECIALIDADES):
@@ -158,9 +159,7 @@ def eliminar_medico():
 
     advertencia(f"'{medico.nombre}' será eliminado permanentemente.")
 
-    if not confirmar(
-        f"¿Eliminar a '{medico.nombre}'? Esta acción no se puede deshacer"
-    ):
+    if not confirmar(f"¿Eliminar a '{medico.nombre}'? Esta acción no se puede deshacer"):
         info("Operación cancelada.")
         pausar()
         return

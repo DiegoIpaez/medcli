@@ -1,9 +1,10 @@
 import datetime
-from ...database.models import Turno, Medico, Paciente
+
+from ...database.models import Medico, Paciente, Turno
 
 
 def get_medicos_activos():
-    return Medico.select().where(Medico.activo == True).order_by(Medico.nombre)
+    return Medico.select().where(Medico.activo == 1).order_by(Medico.nombre)
 
 
 def buscar_pacientes(termino):
@@ -15,9 +16,7 @@ def buscar_pacientes(termino):
 def verificar_conflicto(medico_id, fecha, horario, excluir_id=None):
     t_nuevo = datetime.datetime.strptime(horario, "%H:%M")
     query = Turno.select().where(
-        (Turno.medico == medico_id)
-        & (Turno.fecha == fecha)
-        & (Turno.estado != "CANCELADO")
+        (Turno.medico == medico_id) & (Turno.fecha == fecha) & (Turno.estado != "CANCELADO")
     )
     if excluir_id:
         query = query.where(Turno.id != excluir_id)

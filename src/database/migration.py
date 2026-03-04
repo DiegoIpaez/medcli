@@ -34,9 +34,7 @@ def needs_triggers():
         existing_triggers = {row[0] for row in cursor.fetchall()}
         conn.close()
 
-        required_triggers = {
-            f"trg_{table}_created_at" for table in TIMESTAMP_TABLES
-        } | {
+        required_triggers = {f"trg_{table}_created_at" for table in TIMESTAMP_TABLES} | {
             "trg_turnos_duracion_entre_turno",
             "trg_turnos_conflicto_medico_insert",
             "trg_turnos_conflicto_paciente_insert",
