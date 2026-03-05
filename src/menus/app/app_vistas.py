@@ -26,7 +26,7 @@ def _abrir_pdf(ruta: Path):
         subprocess.run(["xdg-open", str(ruta)])
 
 
-def _get_reports_dir() -> Path:
+def _obtener_reports_dir() -> Path:
     """
     Obtiene la ruta root/storage/reports independientemente
     de dónde se ejecute el script.
@@ -40,7 +40,7 @@ def _get_reports_dir() -> Path:
 def generar_reporte_pdf():
     limpiar()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-    reports_dir = _get_reports_dir()
+    reports_dir = _obtener_reports_dir()
     ruta = reports_dir / f"{timestamp}_reporte_medcli.pdf"
 
     generar_reporte(

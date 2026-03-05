@@ -77,7 +77,7 @@ def crear_paciente():
 
     fecha_nac = _pedir_fecha("Fecha de nacimiento (DD/MM/AAAA)")
 
-    obras = pacientes_servicio.get_all_obras_sociales()
+    obras = pacientes_servicio.obtener_all_obras_sociales()
     _mostrar_obras_sociales(obras)
     obra_social = _seleccionar_obra_social(obras, "Elegí obra social (número)")
 
@@ -88,7 +88,7 @@ def crear_paciente():
 
 @vista("Listado de Pacientes")
 def listar_pacientes():
-    pacientes = pacientes_servicio.get_todos_los_pacientes()
+    pacientes = pacientes_servicio.obtener_todos_los_pacientes()
 
     if not pacientes:
         advertencia("No hay pacientes registrados.")
@@ -127,7 +127,7 @@ def editar_paciente():
         pausar()
         return
 
-    paciente = pacientes_servicio.get_paciente_por_id(int(id_str))
+    paciente = pacientes_servicio.obtener_paciente_por_id(int(id_str))
     if not paciente:
         error("Paciente no encontrado.")
         pausar()
@@ -144,7 +144,7 @@ def editar_paciente():
         default=paciente.fecha_nacimiento.strftime("%d/%m/%Y"),
     )
 
-    obras = pacientes_servicio.get_all_obras_sociales()
+    obras = pacientes_servicio.obtener_all_obras_sociales()
     _mostrar_obras_sociales(obras)
     obra_social = _seleccionar_obra_social(
         obras,
@@ -165,7 +165,7 @@ def eliminar_paciente():
         pausar()
         return
 
-    paciente = pacientes_servicio.get_paciente_por_id(int(id_str))
+    paciente = pacientes_servicio.obtener_paciente_por_id(int(id_str))
     if not paciente:
         error("Paciente no encontrado.")
         pausar()

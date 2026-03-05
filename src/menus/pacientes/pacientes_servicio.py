@@ -3,7 +3,7 @@ import datetime
 from ...database.models import ObraSocial, Paciente
 
 
-def get_all_obras_sociales():
+def obtener_all_obras_sociales():
     return ObraSocial.select()
 
 
@@ -23,7 +23,7 @@ def crear_paciente(nombre, cuit, fecha_nac, obra_social):
     )
 
 
-def get_todos_los_pacientes():
+def obtener_todos_los_pacientes():
     return Paciente.select().order_by(Paciente.nombre)
 
 
@@ -35,7 +35,7 @@ def buscar_pacientes(termino):
     )
 
 
-def get_paciente_por_id(id):
+def obtener_paciente_por_id(id):
     return Paciente.get_by_id(id)
 
 

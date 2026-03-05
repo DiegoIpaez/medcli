@@ -67,7 +67,7 @@ def _seleccionar_de_lista(items, prompt):
 
 
 def _seleccionar_medico():
-    medicos = turnos_service.get_medicos_activos()
+    medicos = turnos_service.obtener_medicos_activos()
     if not medicos:
         advertencia("No hay médicos activos registrados.")
         return None
@@ -137,10 +137,8 @@ def agenda_diaria():
         pausar()
         return
 
-    fecha = _pedir_fecha(
-        "Fecha (DD/MM/AAAA)", default=datetime.date.today().strftime("%d/%m/%Y")
-    )
-    turnos = turnos_service.get_turnos_por_medico_y_fecha(medico, fecha)
+    fecha = _pedir_fecha("Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    turnos = turnos_service.obtener_turnos_por_medico_y_fecha(medico, fecha)
 
     limpiar()
     encabezado(f"Agenda — {medico.nombre} — {fecha.strftime('%d/%m/%Y')}")
@@ -176,7 +174,7 @@ def cambiar_estado():
         pausar()
         return
 
-    turno = turnos_service.get_turno_por_id(int(id_str))
+    turno = turnos_service.obtener_turno_por_id(int(id_str))
     if not turno:
         error("Turno no encontrado.")
         pausar()
@@ -196,15 +194,40 @@ def cambiar_estado():
     pausar()
 
 
+def _mostrar_turnos_pendientes(turnos_pendientes):
+    columnas = ["ID", "Fecha", "Hora", "Médico", "Especialidad", "Estado", "Duración"]
+    filas = [
+        [
+            turno_pendiente.id,
+            turno_pendiente.fecha.strftime("%d/%m/%Y"),
+            turno_pendiente.horario,
+            turno_pendiente.medico.nombre,
+            turno_pendiente.medico.especialidad,
+            _color_estado(turno_pendiente.estado),
+            _formato_duracion(turno_pendiente),
+        ]
+        for turno_pendiente in turnos_pendientes
+    ]
+    tabla(filas, columnas)
+
+
 @vista("Registrar Duración Real de Consulta")
 def registrar_duracion():
+    turnos_pendientes = turnos_service.obtener_turnos_pendientes()
+    if not turnos_pendientes:
+        advertencia("No hay turnos pendientes para registrar duración.")
+        pausar()
+        return
+
+    _mostrar_turnos_pendientes(turnos_pendientes)
+
     id_str = pedir("ID del turno")
     if not id_str.isdigit():
         error("ID inválido.")
         pausar()
         return
 
-    turno = turnos_service.get_turno_por_id(int(id_str))
+    turno = turnos_service.obtener_turno_por_id(int(id_str))
     if not turno:
         error("Turno no encontrado.")
         pausar()
@@ -237,7 +260,7 @@ def turnos_por_paciente():
         pausar()
         return
 
-    turnos = turnos_service.get_turnos_por_paciente(paciente)
+    turnos = turnos_service.obtener_turnos_por_paciente(paciente)
 
     limpiar()
     encabezado(f"Turnos de: {paciente.nombre}")
