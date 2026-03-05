@@ -78,7 +78,7 @@ def _seleccionar_medico():
 
 
 def _seleccionar_paciente():
-    termino = pedir("Buscar paciente (nombre o CUIT/DNI)")
+    termino = pedir("Buscar paciente (nombre o CUIT)")
     resultados = turnos_service.buscar_pacientes(termino)
     if not resultados:
         advertencia("No se encontraron pacientes.")
@@ -162,7 +162,7 @@ def agenda_diaria():
         for t in turnos
     ]
 
-    tabla(filas, ["Hora", "Paciente", "CUIT/DNI", "Estado", "Duración", "ET", "Notas"])
+    tabla(filas, ["Hora", "Paciente", "CUIT", "Estado", "Duración", "ET", "Notas"])
     pausar()
 
 

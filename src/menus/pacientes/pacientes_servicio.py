@@ -36,7 +36,10 @@ def buscar_pacientes(termino):
 
 
 def obtener_paciente_por_id(id):
-    return Paciente.get_by_id(id)
+    try:
+        return Paciente.get_by_id(id)
+    except Exception:
+        return None
 
 
 def actualizar_paciente(paciente, nombre, cuit, fecha_nac, obra_social):

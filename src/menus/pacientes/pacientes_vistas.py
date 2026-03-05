@@ -19,6 +19,7 @@ from ...ui.mensajes import (
     exito,
     info,
 )
+from ...utils.cuit import validar_cuit
 from ...utils.decorators import vista
 from . import pacientes_servicio
 
@@ -68,12 +69,15 @@ def _filas_pacientes(pacientes):
 @vista("Registrar Nuevo Paciente")
 def crear_paciente():
     nombre = pedir("Nombre completo")
-    cuit = pedir("CUIT/DNI")
-
-    if pacientes_servicio.cuit_existe(cuit):
-        error(f"Ya existe un paciente con CUIT/DNI '{cuit}'.")
-        pausar()
-        return
+    while True:
+        cuit = pedir("CUIT")
+        if not validar_cuit(cuit):
+            error("CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.")
+            continue
+        if pacientes_servicio.cuit_existe(cuit):
+            error(f"Ya existe un paciente con este CUIT '{cuit}'.")
+            continue
+        break
 
     fecha_nac = _pedir_fecha("Fecha de nacimiento (DD/MM/AAAA)")
 
@@ -86,6 +90,13 @@ def crear_paciente():
     pausar()
 
 
+def _mostrar_pacientes(pacientes):
+    tabla(
+        _filas_pacientes(pacientes),
+        ["ID", "Nombre", "CUIT", "Nacimiento", "Obra Social"],
+    )
+
+
 @vista("Listado de Pacientes")
 def listar_pacientes():
     pacientes = pacientes_servicio.obtener_todos_los_pacientes()
@@ -95,16 +106,19 @@ def listar_pacientes():
         pausar()
         return
 
-    tabla(
-        _filas_pacientes(pacientes),
-        ["ID", "Nombre", "CUIT/DNI", "Nacimiento", "Obra Social"],
-    )
+    _mostrar_pacientes(pacientes)
     pausar()
 
 
 @vista("Buscar Paciente")
 def buscar_paciente():
-    termino = pedir("Nombre o CUIT/DNI a buscar")
+    pacientes = pacientes_servicio.obtener_todos_los_pacientes()
+    if not pacientes:
+        advertencia("No hay pacientes registrados.")
+        pausar()
+        return
+
+    termino = pedir("Nombre o CUIT a buscar")
     resultados = pacientes_servicio.buscar_pacientes(termino)
 
     if not resultados:
@@ -114,13 +128,21 @@ def buscar_paciente():
 
     tabla(
         _filas_pacientes(resultados),
-        ["ID", "Nombre", "CUIT/DNI", "Nacimiento", "Obra Social"],
+        ["ID", "Nombre", "CUIT", "Nacimiento", "Obra Social"],
     )
     pausar()
 
 
 @vista("Editar Paciente")
 def editar_paciente():
+    pacientes = pacientes_servicio.obtener_todos_los_pacientes()
+
+    if not pacientes:
+        advertencia("No hay pacientes registrados.")
+        pausar()
+        return
+
+    _mostrar_pacientes(pacientes)
     id_str = pedir("ID del paciente a editar")
     if not id_str.isdigit():
         error("ID inválido.")
@@ -138,7 +160,16 @@ def editar_paciente():
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
     nombre = pedir("Nombre completo", requerido=False, default=paciente.nombre)
-    cuit = pedir("CUIT/DNI", requerido=False, default=paciente.cuit)
+    while True:
+        cuit = pedir("CUIT", requerido=False, default=paciente.cuit)
+        if not validar_cuit(cuit):
+            error("CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.")
+            continue
+
+        if cuit != paciente.cuit and pacientes_servicio.cuit_existe(cuit):
+            error(f"Ya existe un paciente con CUIT '{cuit}'.")
+            continue
+        break
     fecha_nac = _pedir_fecha(
         "Fecha de nacimiento (DD/MM/AAAA)",
         default=paciente.fecha_nacimiento.strftime("%d/%m/%Y"),
@@ -159,6 +190,14 @@ def editar_paciente():
 
 @vista("Eliminar Paciente")
 def eliminar_paciente():
+    pacientes = pacientes_servicio.obtener_todos_los_pacientes()
+
+    if not pacientes:
+        advertencia("No hay pacientes registrados.")
+        pausar()
+        return
+
+    _mostrar_pacientes(pacientes)
     id_str = pedir("ID del paciente a eliminar")
     if not id_str.isdigit():
         error("ID inválido.")
