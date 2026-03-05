@@ -1,11 +1,10 @@
-import sys
-
 from ...ui.colores import BOLD, CYAN, DIM, GREEN, RED, RESET, YELLOW
 from ...ui.input import pausar
 from ...ui.layout import limpiar
 from ..medicos.medicos_menu import menu_medicos
 from ..pacientes.pacientes_menu import menu_pacientes
 from ..turnos.turnos_menu import menu_turnos
+from .app_vistas import generar_reporte_pdf, salida
 
 BANNER = r"""
    ____ _     ___ _   _ ___ ____ _
@@ -27,7 +26,7 @@ def cabecera_principal():
     print(f"  {GREEN}  [1]{RESET}  Gestion de Pacientes")
     print(f"  {GREEN}  [2]{RESET}  Gestion de Medicos")
     print(f"  {GREEN}  [3]{RESET}  Gestion de Turnos")
-    print(f"  {GREEN}  [4]{RESET}  Reportes e Informes")
+    print(f"  {GREEN}  [4]{RESET}  Generar Reporte")
     print(f"  {CYAN}{'-' * 46}{RESET}")
     print(f"  {RED}  [0]{RESET}  Salir")
     print(f"  {CYAN}{separador}{RESET}\n")
@@ -45,13 +44,9 @@ def menu_principal():
         elif opcion == "3":
             menu_turnos()
         elif opcion == "4":
-            print("No implementado aún.")
+            generar_reporte_pdf()
         elif opcion == "0":
-            limpiar()
-            print(f"\n  {CYAN}{'=' * 46}{RESET}")
-            print(f"  {BOLD}  Hasta luego!{RESET}")
-            print(f"  {CYAN}{'=' * 46}{RESET}\n")
-            sys.exit(0)
+            salida()
         else:
             print(f"\n  {RED}  Opcion invalida.{RESET}")
             pausar()

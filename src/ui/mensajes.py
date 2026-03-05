@@ -6,7 +6,7 @@ def _mostrar(color, prefijo, texto):
 
 
 def exito(texto):
-    _mostrar(GREEN, "OK ", texto)
+    _mostrar(GREEN, "", texto)
 
 
 def error(texto):
