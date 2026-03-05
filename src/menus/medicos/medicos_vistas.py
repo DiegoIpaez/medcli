@@ -51,6 +51,17 @@ def alta_medico():
     pausar()
 
 
+def _mostrar_tabla_medicos(medicos):
+    filas = []
+    for medico in medicos:
+        estado = f"{GREEN}Activo{RESET}" if medico.activo else f"{RED}Inactivo{RESET}"
+        filas.append(
+            [medico.id, medico.nombre, medico.especialidad, medico.matricula, estado]
+        )
+
+    tabla(filas, ["ID", "Nombre", "Especialidad", "Matrícula", "Estado"])
+
+
 @vista("Listado de Médicos")
 def mostrar_medicos(solo_activos: bool = False):
     medicos = medicos_servicio.listar_medicos(solo_activos)
@@ -60,17 +71,19 @@ def mostrar_medicos(solo_activos: bool = False):
         pausar()
         return
 
-    filas = []
-    for m in medicos:
-        estado = f"{GREEN}Activo{RESET}" if m.activo else f"{RED}Inactivo{RESET}"
-        filas.append([m.id, m.nombre, m.especialidad, m.matricula, estado])
-
-    tabla(filas, ["ID", "Nombre", "Especialidad", "Matrícula", "Estado"])
+    _mostrar_tabla_medicos(medicos)
     pausar()
 
 
 @vista("Buscar Médico")
 def buscar_medico():
+    medicos = medicos_servicio.listar_medicos()
+
+    if not medicos:
+        advertencia("No hay médicos registrados.")
+        pausar()
+        return
+
     termino = pedir("Nombre, especialidad o matrícula")
     resultados = medicos_servicio.buscar_medicos(termino)
 
@@ -79,17 +92,20 @@ def buscar_medico():
         pausar()
         return
 
-    filas = []
-    for m in resultados:
-        estado = f"{GREEN}Activo{RESET}" if m.activo else f"{RED}Inactivo{RESET}"
-        filas.append([m.id, m.nombre, m.especialidad, m.matricula, estado])
-
-    tabla(filas, ["ID", "Nombre", "Especialidad", "Matrícula", "Estado"])
+    _mostrar_tabla_medicos(resultados)
     pausar()
 
 
 @vista("Editar Médico")
 def editar_medico():
+    medicos = medicos_servicio.listar_medicos()
+
+    if not medicos:
+        advertencia("No hay médicos registrados.")
+        pausar()
+        return
+
+    _mostrar_tabla_medicos(medicos)
     id_str = pedir("ID del médico a editar")
     if not id_str.isdigit():
         error("ID inválido.")
@@ -145,6 +161,13 @@ def editar_medico():
 
 @vista("Eliminar Médico")
 def eliminar_medico():
+    medicos = medicos_servicio.listar_medicos()
+
+    if not medicos:
+        advertencia("No hay médicos registrados.")
+        pausar()
+        return
+    _mostrar_tabla_medicos(medicos)
     id_str = pedir("ID del médico a eliminar")
     if not id_str.isdigit():
         error("ID inválido.")

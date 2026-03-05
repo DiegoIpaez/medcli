@@ -41,7 +41,10 @@ def buscar_medicos(termino: str):
 
 
 def obtener_medico_por_id(medico_id: int):
-    return Medico.get_by_id(medico_id)
+    try:
+        return Medico.get_by_id(medico_id)
+    except Exception:
+        return None
 
 
 def actualizar_medico(medico, nombre, matricula, especialidad, activo):
