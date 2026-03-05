@@ -1,0 +1,16 @@
+cfgv==3.5.0
+charset-normalizer==3.4.4
+distlib==0.4.0
+filelock==3.25.0
+identify==2.6.17
+nodeenv==1.10.0
+peewee==4.0.1
+pillow==12.1.1
+platformdirs==4.9.2
+pre_commit==4.5.1
+python-discovery==1.1.0
+PyYAML==6.0.3
+reportlab==4.4.10
+ruff==0.15.4
+tabulate==0.10.0
+virtualenv==21.1.0
