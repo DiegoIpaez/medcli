@@ -2,20 +2,21 @@ from .colores import CYAN, GREEN, RED, RESET, YELLOW
 
 
 def _mostrar(color, prefijo, texto):
-    print(f"\n  {color}{prefijo} {texto}{RESET}")
+    pref = f"{prefijo}   " if prefijo else ""
+    print(f"\n  {color}{pref}{texto}{RESET}")
 
 
-def exito(texto):
-    _mostrar(GREEN, "", texto)
+def exito(texto, prefijo="✅"):
+    _mostrar(GREEN, prefijo, texto)
 
 
-def error(texto):
-    _mostrar(RED, "ERR", texto)
+def error(texto, prefijo="❌"):
+    _mostrar(RED, prefijo, texto)
 
 
-def advertencia(texto):
-    _mostrar(YELLOW, "!! ", texto)
+def advertencia(texto, prefijo="⚠️"):
+    _mostrar(YELLOW, prefijo, texto)
 
 
-def info(texto):
-    _mostrar(CYAN, ">> ", texto)
+def info(texto, prefijo="ℹ️"):
+    _mostrar(CYAN, prefijo, texto)
