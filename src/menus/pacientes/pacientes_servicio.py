@@ -1,5 +1,3 @@
-import datetime
-
 from ...database.models import ObraSocial, Paciente
 
 
@@ -12,14 +10,11 @@ def cuit_existe(cuit):
 
 
 def crear_paciente(nombre, cuit, fecha_nac, obra_social):
-    ahora = datetime.datetime.now()
     return Paciente.create(
         nombre=nombre.upper(),
         cuit=cuit,
         fecha_nacimiento=fecha_nac,
         obra_social=obra_social,
-        created_at=ahora,
-        updated_at=ahora,
     )
 
 
@@ -47,7 +42,6 @@ def actualizar_paciente(paciente, nombre, cuit, fecha_nac, obra_social):
     paciente.cuit = cuit
     paciente.fecha_nacimiento = fecha_nac
     paciente.obra_social = obra_social
-    paciente.updated_at = datetime.datetime.now()
     paciente.save()
     return paciente
 

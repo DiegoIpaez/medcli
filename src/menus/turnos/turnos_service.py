@@ -55,7 +55,6 @@ def verificar_conflicto(medico_id, fecha, horario, excluir_id=None):
 
 
 def crear_turno(paciente, medico, fecha, horario, entre_turno, notas):
-    ahora = datetime.datetime.now()
     return Turno.create(
         paciente=paciente,
         medico=medico,
@@ -66,14 +65,11 @@ def crear_turno(paciente, medico, fecha, horario, entre_turno, notas):
         duracion_min=30,
         duracion_real=None,
         notas=notas or None,
-        created_at=ahora,
-        updated_at=ahora,
     )
 
 
 def actualizar_estado(turno, nuevo_estado):
     turno.estado = nuevo_estado
-    turno.updated_at = datetime.datetime.now()
     turno.save()
     return turno
 
@@ -81,6 +77,5 @@ def actualizar_estado(turno, nuevo_estado):
 def registrar_duracion_real(turno, duracion):
     turno.duracion_real = duracion
     turno.estado = "ATENDIDO"
-    turno.updated_at = datetime.datetime.now()
     turno.save()
     return turno
