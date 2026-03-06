@@ -1,6 +1,8 @@
 import sqlite3
 
+from ..ui.mensajes import info
 from .models import Medico, ObraSocial, Paciente, Turno
+from .seeds import seed_obras_sociales
 from .triggers import crear_timestamp_triggers, crear_turnos_triggers
 
 DB_PATH = "data/clinica.db"
@@ -47,19 +49,20 @@ def needs_triggers():
 
 def migrate(db):
     if not db_exists():
-        print("🆕 Creando base de datos por primera vez...")
+        info("Creando base de datos por primera vez...")
 
         db.create_tables([ObraSocial, Paciente, Medico, Turno], safe=True)
+        seed_obras_sociales(db)
         crear_timestamp_triggers(TIMESTAMP_TABLES)
         crear_turnos_triggers()
 
-        print("✅ Base de datos creada con triggers!")
+        info("Base de datos creada con triggers!")
     elif needs_triggers():
-        print("🔧 Actualizando triggers faltantes...")
+        info("Actualizando triggers faltantes...")
 
         crear_timestamp_triggers(TIMESTAMP_TABLES)
         crear_turnos_triggers()
 
-        print("✅ Triggers actualizados!")
+        info("Triggers actualizados!")
     else:
-        print("✅ Base de datos y triggers ya están OK!")
+        info("Base de datos y triggers ya están OK!")
