@@ -20,6 +20,7 @@ from ...ui.mensajes import (
     info,
 )
 from ...utils.decorators import vista
+from ...utils.matricula import validar_matricula
 from . import medicos_servicio
 
 
@@ -32,7 +33,13 @@ def _mostrar_especialidades():
 @vista("Registrar Nuevo Médico")
 def alta_medico():
     nombre = pedir("Nombre completo")
-    matricula = pedir("Matrícula")
+
+    while True:
+        matricula = pedir("Matrícula (ej: MN 123456)").strip().upper()
+        if not validar_matricula(matricula):
+            error("Formato inválido.")
+            continue
+        break
 
     _mostrar_especialidades()
     while True:
@@ -122,7 +129,14 @@ def editar_medico():
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
     nombre = pedir("Nombre completo", requerido=False, default=medico.nombre)
-    matricula = pedir("Matrícula", requerido=False, default=medico.matricula)
+    while True:
+        matricula = (
+            pedir("Matrícula", requerido=False, default=medico.matricula).strip().upper()
+        )
+        if not validar_matricula(matricula):
+            error("Formato inválido.")
+            continue
+        break
 
     _mostrar_especialidades()
     esp_actual_idx = (
