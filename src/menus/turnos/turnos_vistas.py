@@ -37,13 +37,18 @@ def _color_estado(estado):
 
 
 def _pedir_fecha(prompt, default=None):
+    anio_actual = datetime.date.today().year
     while True:
         if default is not None:
             valor = pedir(prompt, requerido=False, default=default)
         else:
             valor = pedir(prompt, requerido=True)
         try:
-            return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+            fecha = datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+            if fecha.year < anio_actual:
+                error(f"El año no puede ser menor a {anio_actual}.")
+                continue
+            return fecha
         except ValueError:
             error("Formato inválido. Usá DD/MM/AAAA.")
 
@@ -52,7 +57,10 @@ def _pedir_horario(prompt):
     while True:
         horario = pedir(prompt)
         try:
-            datetime.datetime.strptime(horario, "%H:%M")
+            dt = datetime.datetime.strptime(horario, "%H:%M")
+            if not (8 <= dt.hour <= 21):
+                error("El horario debe estar entre 08:00 y 21:00.")
+                continue
             return horario
         except ValueError:
             error("Formato inválido. Usá HH:MM.")
@@ -137,7 +145,7 @@ def agenda_diaria():
         pausar()
         return
 
-    fecha = _pedir_fecha("Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    fecha = _pedir_fecha("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
     turnos = turnos_service.obtener_turnos_por_medico_y_fecha(medico, fecha)
 
     limpiar()
