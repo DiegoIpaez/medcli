@@ -54,7 +54,7 @@ def _pedir_fecha(prompt, default=None):
             error("Formato inválido. Usá DD/MM/AAAA.")
 
 
-def _pedir_horario(prompt):
+def _pedir_horario(prompt, fecha):
     while True:
         horario = pedir(prompt)
         try:
@@ -62,6 +62,14 @@ def _pedir_horario(prompt):
             if not (8 <= dt.hour <= 21):
                 error("El horario debe estar entre 08:00 y 21:00.")
                 continue
+
+            if fecha == datetime.date.today():
+                ahora = datetime.datetime.now().time().replace(second=0, microsecond=0)
+                if dt.time() <= ahora:
+                    msg_err = f"El horario debe ser posterior a {ahora.strftime('%H:%M')}."
+                    error(msg_err)
+                    continue
+
             return horario
         except ValueError:
             error("Formato inválido. Usá HH:MM.")
@@ -107,7 +115,7 @@ def crear_turno():
         return
 
     fecha = _pedir_fecha("Fecha del turno (DD/MM/AAAA)")
-    horario = _pedir_horario("Horario (HH:MM)")
+    horario = _pedir_horario("Horario (HH:MM)", fecha)
 
     entre_turno = False
     if turnos_service.verificar_conflicto(medico.id, fecha, horario):
