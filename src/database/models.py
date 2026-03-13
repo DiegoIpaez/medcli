@@ -59,8 +59,8 @@ class Paciente(BaseModel):
     obra_social = ForeignKeyField(
         ObraSocial, column_name="obra_social_id", backref="pacientes", null=True
     )
-    created_at = DateTimeField(default=datetime.datetime.now)
-    updated_at = DateTimeField()
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         table_name = "pacientes"
@@ -72,8 +72,8 @@ class Medico(BaseModel):
     especialidad = CharField(choices=ESPECIALIDADES)
     matricula = TextField(unique=True)
     activo = BooleanField(default=True)
-    created_at = DateTimeField(default=datetime.datetime.now)
-    updated_at = DateTimeField()
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         table_name = "medicos"
@@ -90,8 +90,8 @@ class Turno(BaseModel):
     duracion_min = IntegerField(default=30)
     duracion_real = IntegerField(null=True)
     notas = TextField(null=True)
-    created_at = DateTimeField(default=datetime.datetime.now)
-    updated_at = DateTimeField()
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         table_name = "turnos"

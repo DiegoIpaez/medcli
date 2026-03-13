@@ -27,7 +27,7 @@ pre-commit = "^4.5.1"
 package-mode = false
 
 [tool.ruff]
-line-length = 94
+line-length = 150
 target-version = "py311"
 
 [tool.ruff.lint]

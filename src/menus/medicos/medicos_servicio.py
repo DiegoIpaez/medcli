@@ -1,5 +1,3 @@
-import datetime
-
 from ...database.models import Medico
 
 
@@ -7,15 +5,11 @@ def crear_medico(nombre: str, matricula: str, especialidad: str):
     if Medico.select().where(Medico.matricula == matricula).exists():
         raise ValueError("Ya existe un médico con esa matrícula.")
 
-    ahora = datetime.datetime.now()
-
     return Medico.create(
         nombre=nombre.upper(),
         especialidad=especialidad,
         matricula=matricula,
         activo=True,
-        created_at=ahora,
-        updated_at=ahora,
     )
 
 
@@ -52,7 +46,6 @@ def actualizar_medico(medico, nombre, matricula, especialidad, activo):
     medico.matricula = matricula
     medico.especialidad = especialidad
     medico.activo = activo
-    medico.updated_at = datetime.datetime.now()
     medico.save()
 
     return medico
