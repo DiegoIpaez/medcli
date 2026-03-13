@@ -13,6 +13,7 @@ from ...ui.input import (
     confirmar,
     pausar,
     pedir,
+    pedir_opcion,
 )
 from ...ui.layout import encabezado, limpiar, tabla
 from ...ui.mensajes import (
@@ -66,35 +67,25 @@ def _pedir_horario(prompt):
             error("Formato inválido. Usá HH:MM.")
 
 
-def _seleccionar_de_lista(items, prompt):
-    while True:
-        idx = input(f"\n  {YELLOW}  {prompt}: {RESET}").strip()
-        if idx.isdigit() and 1 <= int(idx) <= len(items):
-            return items[int(idx) - 1]
-        error("Número inválido.")
-
-
 def _seleccionar_medico():
     medicos = turnos_service.obtener_medicos_activos()
     if not medicos:
         advertencia("No hay médicos activos registrados.")
         return None
-    print(f"\n  {CYAN}Médicos disponibles:{RESET}")
-    for i, m in enumerate(medicos, 1):
-        print(f"  {GREEN}  [{i}]{RESET} {m.nombre} — {m.especialidad}")
-    return _seleccionar_de_lista(medicos, "Elegí médico (número)")
+    opciones = [f"{m.nombre} — {m.especialidad}" for m in medicos]
+    seleccion = pedir_opcion("Elegí médico", opciones)
+    return medicos[opciones.index(seleccion)]
 
 
 def _seleccionar_paciente():
     termino = pedir("Buscar paciente (nombre o CUIT)")
-    resultados = turnos_service.buscar_pacientes(termino)
-    if not resultados:
+    pacientes = turnos_service.buscar_pacientes(termino)
+    if not pacientes:
         advertencia("No se encontraron pacientes.")
         return None
-    print(f"\n  {CYAN}Resultados:{RESET}")
-    for i, p in enumerate(resultados, 1):
-        print(f"  {GREEN}  [{i}]{RESET} {p.nombre} — DNI: {p.cuit}")
-    return _seleccionar_de_lista(resultados, "Elegí paciente (número)")
+    opciones = [f"{paciente.nombre} — DNI: {paciente.cuit}" for paciente in pacientes]
+    seleccion = pedir_opcion("Elegí paciente", opciones)
+    return pacientes[opciones.index(seleccion)]
 
 
 def _formato_duracion(turno):
@@ -192,11 +183,7 @@ def cambiar_estado():
     info(f"Turno #{turno.id}: {turno.paciente.nombre} con {turno.medico.nombre}")
     info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado}")
 
-    print(f"\n  {CYAN}Nuevos estados disponibles:{RESET}")
-    for i, e in enumerate(ESTADOS, 1):
-        print(f"  {GREEN}  [{i}]{RESET} {e}")
-
-    nuevo_estado = _seleccionar_de_lista(ESTADOS, "Elegí nuevo estado (número)")
+    nuevo_estado = pedir_opcion("Elegí nuevo estado", list(ESTADOS))
     turnos_service.actualizar_estado(turno, nuevo_estado)
     exito(f"Estado actualizado a '{nuevo_estado}'.")
     pausar()

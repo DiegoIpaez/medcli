@@ -1,16 +1,15 @@
 import datetime
 
 from ...ui.colores import (
-    CYAN,
     DIM,
-    GREEN,
     RESET,
-    YELLOW,
 )
 from ...ui.input import (
     confirmar,
     pausar,
     pedir,
+    pedir_opcion,
+    pedir_validado,
 )
 from ...ui.layout import tabla
 from ...ui.mensajes import (
@@ -24,33 +23,53 @@ from ...utils.decorators import vista
 from . import pacientes_servicio
 
 
-def _mostrar_obras_sociales(obras):
-    print(f"\n  {CYAN}Obras Sociales disponibles:{RESET}")
-    print(f"  {DIM}  [0] Sin obra social{RESET}")
-    for i, o in enumerate(obras, 1):
-        print(f"  {GREEN}  [{i}]{RESET} {o.nombre}")
+def _opciones_obras_sociales(obras):
+    return ["Sin obra social"] + [obra.nombre for obra in obras]
 
 
 def _seleccionar_obra_social(obras, prompt, fallback=None):
-    os_input = input(f"\n  {YELLOW}  {prompt}: {RESET}").strip()
-    if os_input == "0":
+    opciones = _opciones_obras_sociales(obras)
+    default = fallback.nombre if fallback else "Sin obra social"
+    seleccion = pedir_opcion(prompt, opciones, default=default)
+    if seleccion == "Sin obra social":
         return None
-    if os_input.isdigit() and 1 <= int(os_input) <= len(obras):
-        return obras[int(os_input) - 1]
-    return fallback
+    return next((obra for obra in obras if obra.nombre == seleccion), fallback)
 
 
 def _pedir_fecha(prompt, default=None):
-    while True:
-        valor = pedir(
-            prompt,
-            requerido=default is None,
-            default=default if default is not None else "",
-        )
+    def validador(valor):
         try:
-            return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+            datetime.datetime.strptime(valor, "%d/%m/%Y")
+            return True
         except ValueError:
-            error("Formato inválido. Usá DD/MM/AAAA.")
+            return False
+
+    valor = pedir_validado(
+        prompt,
+        validador,
+        "Formato inválido. Usá DD/MM/AAAA.",
+        requerido=default is None,
+        default=default or "",
+    )
+    return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+
+
+def _pedir_cuit(cuit_actual=None):
+    def validador(valor):
+        return validar_cuit(valor)
+
+    while True:
+        cuit = pedir_validado(
+            "CUIT",
+            validador,
+            "CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.",
+            requerido=cuit_actual is None,
+            default=cuit_actual or "",
+        )
+        if cuit != cuit_actual and pacientes_servicio.cuit_existe(cuit):
+            error(f"Ya existe un paciente con CUIT '{cuit}'.")
+            continue
+        return cuit
 
 
 def _filas_pacientes(pacientes):
@@ -66,35 +85,25 @@ def _filas_pacientes(pacientes):
     ]
 
 
-@vista("Registrar Nuevo Paciente")
-def crear_paciente():
-    nombre = pedir("Nombre completo")
-    while True:
-        cuit = pedir("CUIT")
-        if not validar_cuit(cuit):
-            error("CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.")
-            continue
-        if pacientes_servicio.cuit_existe(cuit):
-            error(f"Ya existe un paciente con este CUIT '{cuit}'.")
-            continue
-        break
-
-    fecha_nac = _pedir_fecha("Fecha de nacimiento (DD/MM/AAAA)")
-
-    obras = pacientes_servicio.obtener_all_obras_sociales()
-    _mostrar_obras_sociales(obras)
-    obra_social = _seleccionar_obra_social(obras, "Elegí obra social (número)")
-
-    pacientes_servicio.crear_paciente(nombre, cuit, fecha_nac, obra_social)
-    exito(f"Paciente '{nombre.upper()}' registrado exitosamente.")
-    pausar()
-
-
 def _mostrar_pacientes(pacientes):
     tabla(
         _filas_pacientes(pacientes),
         ["ID", "Nombre", "CUIT", "Nacimiento", "Obra Social"],
     )
+
+
+@vista("Registrar Nuevo Paciente")
+def crear_paciente():
+    nombre = pedir("Nombre completo")
+    cuit = _pedir_cuit()
+    fecha_nac = _pedir_fecha("Fecha de nacimiento (DD/MM/AAAA)")
+
+    obras = pacientes_servicio.obtener_all_obras_sociales()
+    obra_social = _seleccionar_obra_social(obras, "Elegí obra social")
+
+    pacientes_servicio.crear_paciente(nombre, cuit, fecha_nac, obra_social)
+    exito(f"Paciente '{nombre.upper()}' registrado exitosamente.")
+    pausar()
 
 
 @vista("Listado de Pacientes")
@@ -160,26 +169,16 @@ def editar_paciente():
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
     nombre = pedir("Nombre completo", requerido=False, default=paciente.nombre)
-    while True:
-        cuit = pedir("CUIT", requerido=False, default=paciente.cuit)
-        if not validar_cuit(cuit):
-            error("CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.")
-            continue
-
-        if cuit != paciente.cuit and pacientes_servicio.cuit_existe(cuit):
-            error(f"Ya existe un paciente con CUIT '{cuit}'.")
-            continue
-        break
+    cuit = _pedir_cuit(cuit_actual=paciente.cuit)
     fecha_nac = _pedir_fecha(
         "Fecha de nacimiento (DD/MM/AAAA)",
         default=paciente.fecha_nacimiento.strftime("%d/%m/%Y"),
     )
 
     obras = pacientes_servicio.obtener_all_obras_sociales()
-    _mostrar_obras_sociales(obras)
     obra_social = _seleccionar_obra_social(
         obras,
-        "Elegí obra social (número, Enter para mantener)",
+        "Elegí obra social",
         fallback=paciente.obra_social,
     )
 
