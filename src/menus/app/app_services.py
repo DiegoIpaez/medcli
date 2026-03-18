@@ -39,7 +39,7 @@ def obtener_medico_por_turnos_atentidos():
     cantidad = Turno.select().where((Turno.medico == mejor) & (Turno.estado == estado_atendido)).count()
     return {
         "medico": mejor.nombre,
-        "especialidad": mejor.especialidad,
+        "especialidad": mejor.especialidad.nombre,
         "cantidad": cantidad,
     }
 
@@ -67,7 +67,7 @@ def obtener_medicos():
         filas.append(
             {
                 "nombre": m.nombre,
-                "especialidad": m.especialidad,
+                "especialidad": m.especialidad.nombre,
                 "total": total,
                 "atendidos": atendidos,
                 "ausentes": ausentes,

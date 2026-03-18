@@ -1,7 +1,7 @@
-from ...database.models import Medico
+from ...database.models import Especialidad, Medico
 
 
-def crear_medico(nombre: str, matricula: str, especialidad: str):
+def crear_medico(nombre: str, matricula: str, especialidad: Especialidad):
     if Medico.select().where(Medico.matricula == matricula).exists():
         raise ValueError("Ya existe un médico con esa matrícula.")
 
@@ -11,6 +11,10 @@ def crear_medico(nombre: str, matricula: str, especialidad: str):
         matricula=matricula,
         activo=True,
     )
+
+
+def listar_especialidades():
+    return list(Especialidad.select().order_by(Especialidad.nombre))
 
 
 def listar_medicos(solo_activos: bool = False):
@@ -25,11 +29,8 @@ def listar_medicos(solo_activos: bool = False):
 def buscar_medicos(termino: str):
     return list(
         Medico.select()
-        .where(
-            (Medico.nombre.contains(termino))
-            | (Medico.especialidad.contains(termino))
-            | (Medico.matricula.contains(termino))
-        )
+        .join(Especialidad)
+        .where((Medico.nombre.contains(termino)) | (Especialidad.nombre.contains(termino)) | (Medico.matricula.contains(termino)))
         .order_by(Medico.nombre)
     )
 

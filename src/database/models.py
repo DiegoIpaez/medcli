@@ -3,7 +3,6 @@ import datetime
 from peewee import (
     AutoField,
     BooleanField,
-    CharField,
     DateField,
     DateTimeField,
     ForeignKeyField,
@@ -43,6 +42,16 @@ class BaseModel(Model):
         database = db
 
 
+class Especialidad(BaseModel):
+    id = AutoField(primary_key=True)
+    nombre = TextField(unique=True)
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        table_name = "especialidades"
+
+
 class ObraSocial(BaseModel):
     id = AutoField(primary_key=True)
     nombre = TextField(unique=True)
@@ -69,7 +78,7 @@ class Paciente(BaseModel):
 class Medico(BaseModel):
     id = AutoField(primary_key=True)
     nombre = TextField()
-    especialidad = CharField(choices=ESPECIALIDADES)
+    especialidad = ForeignKeyField(Especialidad, column_name="especialidad_id", backref="medicos")
     matricula = TextField(unique=True)
     activo = BooleanField(default=True)
     creado_el = DateTimeField(default=datetime.datetime.now)
