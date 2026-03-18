@@ -1,8 +1,11 @@
-from ...database.models import ObraSocial, Paciente
+from ...database.models import Paciente
+from ..obras_sociales.obras_sociales_servicio import (
+    obtener_all_obras_sociales as listar_obras_sociales,
+)
 
 
 def obtener_all_obras_sociales():
-    return ObraSocial.select()
+    return listar_obras_sociales()
 
 
 def cuit_existe(cuit):
@@ -23,11 +26,7 @@ def obtener_todos_los_pacientes():
 
 
 def buscar_pacientes(termino):
-    return (
-        Paciente.select()
-        .where((Paciente.nombre.contains(termino)) | (Paciente.cuit.contains(termino)))
-        .order_by(Paciente.nombre)
-    )
+    return Paciente.select().where((Paciente.nombre.contains(termino)) | (Paciente.cuit.contains(termino))).order_by(Paciente.nombre)
 
 
 def obtener_paciente_por_id(id):
