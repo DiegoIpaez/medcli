@@ -40,16 +40,25 @@ def _color_estado(estado):
 
 def _pedir_fecha(prompt, default=None):
     hoy = datetime.date.today()
+
     while True:
         if default is not None:
             valor = pedir(prompt, requerido=False, default=default)
         else:
             valor = pedir(prompt, requerido=True)
+
         try:
             fecha = datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+            hora_actual = datetime.datetime.now().hour
+
             if fecha < hoy:
                 error(f"La fecha no puede ser anterior a hoy ({hoy.strftime('%d/%m/%Y')}).")
                 continue
+            if fecha == hoy:
+                if hora_actual >= HORARIO_CIERRE:
+                    error("Ya pasó el horario de cierre para hoy. Elegí otra fecha.")
+                    continue
+
             return fecha
         except ValueError:
             error("Formato inválido. Usá DD/MM/AAAA.")
