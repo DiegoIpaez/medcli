@@ -15,6 +15,10 @@ def obtener_turnos_por_medico_y_fecha(medico, fecha):
     return Turno.select().where((Turno.medico == medico) & (Turno.fecha == fecha)).order_by(Turno.horario)
 
 
+def obtener_turnos_por_fecha(fecha):
+    return Turno.select().where(Turno.fecha == fecha).order_by(Turno.horario, Turno.medico)
+
+
 def obtener_turno_por_id(id):
     return Turno.get_by_id(id)
 
