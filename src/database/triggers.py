@@ -12,7 +12,8 @@ TURNOS_SPECIFIC_TRIGGERS = [
     WHEN NEW.entre_turno = 0 AND EXISTS (
         SELECT 1 FROM turnos WHERE medico_id = NEW.medico_id 
         AND fecha = NEW.fecha AND horario = NEW.horario 
-        AND estado != 'CANCELADO' AND entre_turno = 0)
+        AND estado_id != (SELECT id FROM turno_estados WHERE nombre = 'CANCELADO') 
+        AND entre_turno = 0)
     BEGIN SELECT RAISE(ABORT, 'Médico ocupado'); END;
     """,
     """
@@ -21,7 +22,8 @@ TURNOS_SPECIFIC_TRIGGERS = [
     WHEN NEW.entre_turno = 0 AND EXISTS (
         SELECT 1 FROM turnos WHERE paciente_id = NEW.paciente_id 
         AND fecha = NEW.fecha AND horario = NEW.horario 
-        AND estado != 'CANCELADO' AND entre_turno = 0)
+        AND estado_id != (SELECT id FROM turno_estados WHERE nombre = 'CANCELADO') 
+        AND entre_turno = 0)
     BEGIN SELECT RAISE(ABORT, 'Paciente ocupado'); END;
     """,
 ]

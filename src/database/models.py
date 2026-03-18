@@ -35,7 +35,7 @@ ESPECIALIDADES = [
     "UROLOGIA",
 ]
 
-ESTADOS = ["RESERVADO", "ATENDIDO", "CANCELADO", "AUSENTE"]
+ESTADOS_TURNO = ["RESERVADO", "ATENDIDO", "CANCELADO", "AUSENTE"]
 
 
 class BaseModel(Model):
@@ -79,13 +79,23 @@ class Medico(BaseModel):
         table_name = "medicos"
 
 
+class TurnoEstado(BaseModel):
+    id = AutoField(primary_key=True)
+    nombre = TextField(unique=True)
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        table_name = "turno_estados"
+
+
 class Turno(BaseModel):
     id = AutoField(primary_key=True)
     paciente = ForeignKeyField(Paciente, column_name="paciente_id", backref="turnos")
     medico = ForeignKeyField(Medico, column_name="medico_id", backref="turnos")
     fecha = DateField()
     horario = TextField()
-    estado = CharField(choices=ESTADOS, default="RESERVADO")
+    estado = ForeignKeyField(TurnoEstado, column_name="estado_id", backref="turnos")
     entre_turno = BooleanField(default=False)
     duracion_min = IntegerField(default=30)
     duracion_real = IntegerField(null=True)

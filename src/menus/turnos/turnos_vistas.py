@@ -1,6 +1,5 @@
 import datetime
 
-from ...database.models import ESTADOS
 from ...ui.colores import (
     CYAN,
     GREEN,
@@ -28,14 +27,15 @@ from . import turnos_service
 
 
 def _color_estado(estado):
+    nombre = estado.nombre if hasattr(estado, "nombre") else estado
     colores = {
         "RESERVADO": CYAN,
         "ATENDIDO": GREEN,
         "CANCELADO": RED,
         "AUSENTE": YELLOW,
     }
-    c = colores.get(estado, RESET)
-    return f"{c}{estado}{RESET}"
+    c = colores.get(nombre, RESET)
+    return f"{c}{nombre}{RESET}"
 
 
 def _pedir_fecha(prompt, default=None):
@@ -193,11 +193,14 @@ def cambiar_estado():
 
     fecha = turno.fecha.strftime("%d/%m/%Y")
     info(f"Turno #{turno.id}: {turno.paciente.nombre} con {turno.medico.nombre}")
-    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado}")
+    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado.nombre}")
 
-    nuevo_estado = pedir_opcion("Elegí nuevo estado", list(ESTADOS))
+    estados = list(turnos_service.obtener_estados_turno())
+    opciones = [estado.nombre for estado in estados]
+    seleccion = pedir_opcion("Elegí nuevo estado", opciones)
+    nuevo_estado = estados[opciones.index(seleccion)]
     turnos_service.actualizar_estado(turno, nuevo_estado)
-    exito(f"Estado actualizado a '{nuevo_estado}'.")
+    exito(f"Estado actualizado a '{nuevo_estado.nombre}'.")
     pausar()
 
 
@@ -240,8 +243,8 @@ def registrar_duracion():
         pausar()
         return
 
-    if turno.estado != "ATENDIDO":
-        advertencia(f"El turno tiene estado '{turno.estado}'. Marcarlo como ATENDIDO primero.")
+    if turno.estado.nombre != "ATENDIDO":
+        advertencia(f"El turno tiene estado '{turno.estado.nombre}'. Marcarlo como ATENDIDO primero.")
     fecha = turno.fecha.strftime("%d/%m/%Y")
     info(f"Turno #{turno.id}: {turno.paciente.nombre} — {fecha} {turno.horario}")
     info(f"Duración estimada: {turno.duracion_min} minutos")
