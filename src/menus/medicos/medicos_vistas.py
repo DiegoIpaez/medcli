@@ -1,6 +1,5 @@
-from ...database.models import ESPECIALIDADES
 from ...ui.colores import DIM, GREEN, RED, RESET
-from ...ui.input import confirmar, pausar, pedir, pedir_opcion, pedir_validado
+from ...ui.input import confirmar, pausar, pedir, pedir_validado
 from ...ui.layout import tabla
 from ...ui.mensajes import advertencia, error, exito, info
 from ...utils.decorators import vista
@@ -13,7 +12,13 @@ def _mostrar_tabla_medicos(medicos):
     for medico in medicos:
         estado = f"{GREEN}Activo{RESET}" if medico.activo else f"{RED}Inactivo{RESET}"
         filas.append(
-            [medico.id, medico.nombre, medico.especialidad, medico.matricula, estado]
+            [
+                medico.id,
+                medico.nombre,
+                medico.especialidad.nombre,
+                medico.matricula,
+                estado,
+            ]
         )
     tabla(filas, ["ID", "Nombre", "Especialidad", "Matrícula", "Estado"])
 
@@ -44,6 +49,25 @@ def _pedir_activo(actual: bool) -> bool:
     return actual
 
 
+def _seleccionar_especialidad(especialidades, prompt, fallback=None):
+    filas = [[especialidad.id, especialidad.nombre] for especialidad in especialidades]
+    tabla(filas, ["ID", "Especialidad"])
+    default = str(fallback.id) if fallback else ""
+    while True:
+        id_str = pedir(prompt, requerido=fallback is None, default=default)
+        if not id_str.isdigit():
+            error("ID inválido.")
+            continue
+        seleccion_id = int(id_str)
+        especialidad = next(
+            (item for item in especialidades if item.id == seleccion_id),
+            None,
+        )
+        if especialidad:
+            return especialidad
+        error("ID inválido.")
+
+
 @vista("Registrar Nuevo Médico")
 def alta_medico():
     nombre = pedir("Nombre completo")
@@ -52,7 +76,12 @@ def alta_medico():
         validador=validar_matricula,
         msg_error="Formato inválido.",
     ).upper()
-    especialidad = pedir_opcion(prompt="Especialidad", opciones=ESPECIALIDADES)
+    especialidades = medicos_servicio.listar_especialidades()
+    if not especialidades:
+        error("No hay especialidades cargadas.")
+        pausar()
+        return
+    especialidad = _seleccionar_especialidad(especialidades, "ID de la especialidad")
 
     medicos_servicio.crear_medico(nombre, matricula, especialidad)
     exito(f"Médico '{nombre.upper()}' registrado exitosamente.")
@@ -107,7 +136,7 @@ def editar_medico():
     if not medico:
         return
 
-    info(f"Editando: {medico.nombre} | {medico.especialidad} | Mat: {medico.matricula}")
+    info(f"Editando: {medico.nombre} | {medico.especialidad.nombre} | Mat: {medico.matricula}")
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
     nombre = pedir("Nombre completo", requerido=False, default=medico.nombre)
@@ -118,8 +147,15 @@ def editar_medico():
         requerido=False,
         default=medico.matricula,
     ).upper()
-    especialidad = pedir_opcion(
-        prompt="Especialidad", opciones=ESPECIALIDADES, default=medico.especialidad
+    especialidades = medicos_servicio.listar_especialidades()
+    if not especialidades:
+        error("No hay especialidades cargadas.")
+        pausar()
+        return
+    especialidad = _seleccionar_especialidad(
+        especialidades,
+        "ID de la especialidad",
+        fallback=medico.especialidad,
     )
     activo = _pedir_activo(medico.activo)
 

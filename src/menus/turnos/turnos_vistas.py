@@ -103,7 +103,7 @@ def _seleccionar_medico():
     if not medicos:
         advertencia("No hay médicos activos registrados.")
         return None
-    opciones = [f"{m.nombre} — {m.especialidad}" for m in medicos]
+    opciones = [f"{m.nombre} — {m.especialidad.nombre}" for m in medicos]
     seleccion = pedir_opcion("Elegí médico", opciones)
     return medicos[opciones.index(seleccion)]
 
@@ -132,7 +132,7 @@ def _mostrar_tabla_turnos(turnos):
             t.paciente.nombre,
             t.paciente.cuit,
             t.medico.nombre,
-            t.medico.especialidad,
+            t.medico.especialidad.nombre,
             _color_estado(t.estado),
             _formato_duracion(t),
             f"{MAGENTA}*ET{RESET}" if t.entre_turno else "",
@@ -190,7 +190,7 @@ def agenda_diaria():
 
     limpiar()
     encabezado(f"Agenda — {medico.nombre} — {fecha.strftime('%d/%m/%Y')}")
-    info(f"Especialidad: {medico.especialidad}")
+    info(f"Especialidad: {medico.especialidad.nombre}")
 
     if not turnos:
         advertencia("No hay turnos para esta fecha.")
@@ -318,7 +318,7 @@ def _mostrar_turnos_pendientes(turnos_pendientes):
             turno_pendiente.fecha.strftime("%d/%m/%Y"),
             turno_pendiente.horario,
             turno_pendiente.medico.nombre,
-            turno_pendiente.medico.especialidad,
+            turno_pendiente.medico.especialidad.nombre,
             _color_estado(turno_pendiente.estado),
             _formato_duracion(turno_pendiente),
         ]
@@ -390,7 +390,7 @@ def turnos_por_paciente():
             t.fecha.strftime("%d/%m/%Y"),
             t.horario,
             t.medico.nombre,
-            t.medico.especialidad,
+            t.medico.especialidad.nombre,
             _color_estado(t.estado),
             _formato_duracion(t),
         ]

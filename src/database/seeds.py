@@ -1,5 +1,17 @@
 from ..ui.mensajes import info
-from .models import ESTADOS_TURNO, ObraSocial, TurnoEstado
+from .models import ESPECIALIDADES, ESTADOS_TURNO, Especialidad, ObraSocial, TurnoEstado
+
+
+def seed_especialidades(db):
+    if Especialidad.select().exists():
+        return
+
+    data = [{"nombre": nombre} for nombre in ESPECIALIDADES]
+
+    with db.atomic():
+        Especialidad.insert_many(data).execute()
+
+    info("Especialidades iniciales cargadas", prefijo="🌱")
 
 
 def seed_obras_sociales(db):
