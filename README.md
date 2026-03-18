@@ -44,7 +44,8 @@ medcli/
 │   │   ├── app/         # Menú principal y reportes
 │   │   ├── medicos/     # Gestión de médicos
 │   │   ├── pacientes/   # Gestión de pacientes
-│   │   └── turnos/      # Gestión de turnos
+│   │   ├── turnos/      # Gestión de turnos
+│   │   └── obras_sociales/ # Gestión de obras sociales
 │   ├── ui/              # Utilidades de interfaz (colores, input, layout)
 │   └── utils/           # Decoradores y utilidades generales
 ├── storage/reports/     # Reportes generados
@@ -64,7 +65,7 @@ medcli/
 
 ## Arquitectura
 - **Base de datos:** Utiliza SQLite y el ORM [Peewee](http://docs.peewee-orm.com/).
-- **Menús:** Cada entidad (médicos, pacientes, turnos) tiene su propio menú y lógica de negocio en módulos separados.
+- **Menús:** Cada entidad (médicos, pacientes, turnos, obras sociales) tiene su propio menú y lógica de negocio en módulos separados.
 - **UI:** Utilidades para mejorar la experiencia en la terminal (colores, mensajes, layouts).
 - **Reportes:** Generación de reportes en PDF usando [ReportLab](https://www.reportlab.com/).
 - **Pre-commit:** Se utiliza Ruff para linting y formateo automático del código.

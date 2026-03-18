@@ -46,6 +46,8 @@ class BaseModel(Model):
 class ObraSocial(BaseModel):
     id = AutoField(primary_key=True)
     nombre = TextField(unique=True)
+    creado_el = DateTimeField(default=datetime.datetime.now)
+    actualizado_el = DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         table_name = "obras_sociales"
@@ -56,9 +58,7 @@ class Paciente(BaseModel):
     nombre = TextField()
     cuit = TextField(unique=True)
     fecha_nacimiento = DateField()
-    obra_social = ForeignKeyField(
-        ObraSocial, column_name="obra_social_id", backref="pacientes", null=True
-    )
+    obra_social = ForeignKeyField(ObraSocial, column_name="obra_social_id", backref="pacientes", null=True)
     creado_el = DateTimeField(default=datetime.datetime.now)
     actualizado_el = DateTimeField(default=datetime.datetime.now)
 
