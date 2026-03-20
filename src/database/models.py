@@ -12,6 +12,8 @@ from peewee import (
     TextField,
 )
 
+from ..utils.constantes import DURACION_TURNO_POR_DEFECTO_MIN
+
 db = SqliteDatabase(
     None,
     pragmas={
@@ -106,7 +108,7 @@ class Turno(BaseModel):
     horario = TextField()
     estado = ForeignKeyField(TurnoEstado, column_name="estado_id", backref="turnos")
     entre_turno = BooleanField(default=False)
-    duracion_min = IntegerField(default=30)
+    duracion_min = IntegerField(default=DURACION_TURNO_POR_DEFECTO_MIN)
     duracion_real = IntegerField(null=True)
     notas = TextField(null=True)
     creado_el = DateTimeField(default=datetime.datetime.now)
