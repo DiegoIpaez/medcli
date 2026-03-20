@@ -47,7 +47,7 @@ medcli/
 │   │   ├── mensajes.py
 │   └── utils/              # Utilidades generales y helpers
 │       ├── __init__.py
-│       ├── cuit.py
+│       ├── cuil.py
 │       ├── decorators.py
 └── storage/                # Almacenamiento de archivos generados
      └── reports/            # Reportes exportados

@@ -1,7 +1,9 @@
 from ...ui.colores import BOLD, CYAN, DIM, GREEN, RED, RESET, YELLOW
 from ...ui.input import pausar
 from ...ui.layout import limpiar
+from ..especialidades.especialidades_menu import menu_especialidades
 from ..medicos.medicos_menu import menu_medicos
+from ..obras_sociales.obras_sociales_menu import menu_obras_sociales
 from ..pacientes.pacientes_menu import menu_pacientes
 from ..turnos.turnos_menu import menu_turnos
 from .app_vistas import generar_reporte_pdf, salida
@@ -27,6 +29,8 @@ def cabecera_principal():
     print(f"  {GREEN}  [2]{RESET}  Gestion de Medicos")
     print(f"  {GREEN}  [3]{RESET}  Gestion de Turnos")
     print(f"  {GREEN}  [4]{RESET}  Generar Reporte")
+    print(f"  {GREEN}  [5]{RESET}  Gestion de Obras Sociales")
+    print(f"  {GREEN}  [6]{RESET}  Gestion de Especialidades")
     print(f"  {CYAN}{'-' * 46}{RESET}")
     print(f"  {RED}  [0]{RESET}  Salir")
     print(f"  {CYAN}{separador}{RESET}\n")
@@ -45,6 +49,10 @@ def menu_principal():
             menu_turnos()
         elif opcion == "4":
             generar_reporte_pdf()
+        elif opcion == "5":
+            menu_obras_sociales()
+        elif opcion == "6":
+            menu_especialidades()
         elif opcion == "0":
             salida()
         else:

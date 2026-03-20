@@ -71,9 +71,7 @@ estilo_destacado = ParagraphStyle(
 
 
 def _separador():
-    return HRFlowable(
-        width="100%", thickness=1, color=GRIS_LINEA, spaceAfter=6, spaceBefore=2
-    )
+    return HRFlowable(width="100%", thickness=1, color=GRIS_LINEA, spaceAfter=6, spaceBefore=2)
 
 
 def _tabla_estilo_base(headers=True):
@@ -176,9 +174,7 @@ def _on_page(canvas, doc):
     canvas.restoreState()
 
 
-def generar_reporte(
-    ruta_salida, ausentismo, promedios, top_medico, turnos_por_mes, tabla_medicos
-):
+def generar_reporte(ruta_salida, ausentismo, promedios, top_medico, turnos_por_mes, tabla_medicos):
     doc = SimpleDocTemplate(
         ruta_salida,
         pagesize=A4,
@@ -204,9 +200,7 @@ def generar_reporte(
     story.append(Spacer(1, 0.5 * cm))
 
     if top_medico:
-        story.append(
-            Paragraph("Médico con Mayor Cantidad de Turnos Atendidos", estilo_seccion)
-        )
+        story.append(Paragraph("Médico con Mayor Cantidad de Turnos Atendidos", estilo_seccion))
         story.append(_separador())
         story.append(
             _kpi_tabla(
@@ -285,9 +279,7 @@ def generar_reporte(
     story.append(_separador())
 
     if tabla_medicos:
-        data_med = [
-            ["Médico", "Especialidad", "Total", "Atendidos", "Ausentes", "Cancelados"]
-        ]
+        data_med = [["Médico", "Especialidad", "Total", "Atendidos", "Ausentes", "Cancelados"]]
         for row in tabla_medicos:
             data_med.append(
                 [

@@ -6,10 +6,10 @@ from ...ui.mensajes import (
     error,
 )
 from .turnos_vistas import (
+    actualizar_turnos,
     agenda_diaria,
-    cambiar_estado,
     crear_turno,
-    registrar_duracion,
+    turnos_por_fecha,
     turnos_por_paciente,
 )
 
@@ -18,8 +18,8 @@ def menu_turnos():
     OPCIONES = [
         ("1", "➕", "Crear nuevo turno"),
         ("2", "📅", "Ver agenda diaria por médico"),
-        ("3", "🔄", "Cambiar estado de un turno"),
-        ("4", "⏱️ ", "Registrar duración real de consulta"),
+        ("3", "📅", "Ver turnos por fecha"),
+        ("4", "📝", "Actualizar turnos"),
         ("5", "👤", "Ver turnos de un paciente"),
         ("0", "🔙", "Volver al menú principal"),
     ]
@@ -32,9 +32,9 @@ def menu_turnos():
         elif opcion == "2":
             agenda_diaria()
         elif opcion == "3":
-            cambiar_estado()
+            turnos_por_fecha()
         elif opcion == "4":
-            registrar_duracion()
+            actualizar_turnos()
         elif opcion == "5":
             turnos_por_paciente()
         elif opcion == "0":

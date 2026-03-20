@@ -1,6 +1,5 @@
 import datetime
 
-from ...database.models import ESTADOS
 from ...ui.colores import (
     CYAN,
     GREEN,
@@ -22,35 +21,62 @@ from ...ui.mensajes import (
     exito,
     info,
 )
-from ...utils.constantes import HORARIO_APERTURA, HORARIO_CIERRE
+from ...utils.constantes import (
+    DURACION_TURNO_POR_DEFECTO_MIN,
+    HORARIO_APERTURA,
+    HORARIO_CIERRE,
+)
 from ...utils.decorators import vista
 from . import turnos_service
 
 
 def _color_estado(estado):
+    nombre = estado.nombre if hasattr(estado, "nombre") else estado
     colores = {
         "RESERVADO": CYAN,
         "ATENDIDO": GREEN,
         "CANCELADO": RED,
         "AUSENTE": YELLOW,
     }
-    c = colores.get(estado, RESET)
-    return f"{c}{estado}{RESET}"
+    c = colores.get(nombre, RESET)
+    return f"{c}{nombre}{RESET}"
 
 
 def _pedir_fecha(prompt, default=None):
     hoy = datetime.date.today()
+
     while True:
         if default is not None:
             valor = pedir(prompt, requerido=False, default=default)
         else:
             valor = pedir(prompt, requerido=True)
+
         try:
             fecha = datetime.datetime.strptime(valor, "%d/%m/%Y").date()
+            hora_actual = datetime.datetime.now().hour
+
             if fecha < hoy:
                 error(f"La fecha no puede ser anterior a hoy ({hoy.strftime('%d/%m/%Y')}).")
                 continue
+            if fecha == hoy:
+                if hora_actual >= HORARIO_CIERRE:
+                    error("Ya pasó el horario de cierre para hoy. Elegí otra fecha.")
+                    continue
+
             return fecha
+        except ValueError:
+            error("Formato inválido. Usá DD/MM/AAAA.")
+
+
+def _pedir_fecha_consulta(prompt, default=None):
+    while True:
+        if default is not None:
+            valor = pedir(prompt, requerido=False, default=default)
+        else:
+            valor = pedir(prompt, requerido=True)
+
+        try:
+            return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
         except ValueError:
             error("Formato inválido. Usá DD/MM/AAAA.")
 
@@ -59,16 +85,22 @@ def _pedir_horario(prompt, fecha):
     while True:
         horario = pedir(prompt)
         try:
-            dt = datetime.datetime.strptime(horario, "%H:%M")
-            if not (HORARIO_APERTURA <= dt.hour <= HORARIO_CIERRE):
-                error(f"El horario debe estar entre {HORARIO_APERTURA:02d}:00 y {HORARIO_CIERRE:02d}:00.")
+            fecha_actual = datetime.date.today()
+            hora_actual = datetime.datetime.strptime(horario, "%H:%M")
+            hora_cierre = datetime.time(HORARIO_CIERRE, 0)
+            hora_apertura = datetime.time(HORARIO_APERTURA, 0)
+
+            fecha_limite = datetime.datetime.combine(fecha_actual, hora_cierre)
+            hora_limite = fecha_limite - datetime.timedelta(minutes=DURACION_TURNO_POR_DEFECTO_MIN)
+
+            if not (hora_apertura <= hora_actual.time() <= hora_limite.time()):
+                error(f"El horario debe estar entre {HORARIO_APERTURA:02d}:00 y {hora_limite.strftime('%H:%M')} (último turno posible).")
                 continue
 
-            if fecha == datetime.date.today():
+            if fecha == fecha_actual:
                 ahora = datetime.datetime.now().time().replace(second=0, microsecond=0)
-                if dt.time() <= ahora:
-                    msg_err = f"El horario debe ser posterior a {ahora.strftime('%H:%M')}."
-                    error(msg_err)
+                if hora_actual.time() <= ahora:
+                    error(f"El horario debe ser posterior a {ahora.strftime('%H:%M')}.")
                     continue
 
             return horario
@@ -81,24 +113,60 @@ def _seleccionar_medico():
     if not medicos:
         advertencia("No hay médicos activos registrados.")
         return None
-    opciones = [f"{m.nombre} — {m.especialidad}" for m in medicos]
+    opciones = [f"{m.nombre} — {m.especialidad.nombre}" for m in medicos]
     seleccion = pedir_opcion("Elegí médico", opciones)
     return medicos[opciones.index(seleccion)]
 
 
 def _seleccionar_paciente():
-    termino = pedir("Buscar paciente (nombre o CUIT)")
+    termino = pedir("Buscar paciente (nombre o CUIL)")
     pacientes = turnos_service.buscar_pacientes(termino)
     if not pacientes:
         advertencia("No se encontraron pacientes.")
         return None
-    opciones = [f"{paciente.nombre} — DNI: {paciente.cuit}" for paciente in pacientes]
+    opciones = [f"{paciente.nombre} — CUIL: {paciente.cuil}" for paciente in pacientes]
     seleccion = pedir_opcion("Elegí paciente", opciones)
     return pacientes[opciones.index(seleccion)]
 
 
 def _formato_duracion(turno):
     return f"{turno.duracion_real}'" if turno.duracion_real else f"{turno.duracion_min}' (est.)"
+
+
+def _mostrar_tabla_turnos(turnos):
+    filas = [
+        [
+            t.id,
+            t.fecha.strftime("%d/%m/%Y"),
+            t.horario,
+            t.paciente.nombre,
+            t.paciente.cuil,
+            t.medico.nombre,
+            t.medico.especialidad.nombre,
+            _color_estado(t.estado),
+            _formato_duracion(t),
+            f"{MAGENTA}*ET{RESET}" if t.entre_turno else "",
+            t.notas or "—",
+        ]
+        for t in turnos
+    ]
+
+    tabla(
+        filas,
+        [
+            "ID",
+            "Fecha",
+            "Hora",
+            "Paciente",
+            "CUIL",
+            "Médico",
+            "Especialidad",
+            "Estado",
+            "Duración",
+            "ET",
+            "Notas",
+        ],
+    )
 
 
 @vista("Crear Nuevo Turno")
@@ -139,12 +207,12 @@ def agenda_diaria():
         pausar()
         return
 
-    fecha = _pedir_fecha("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    fecha = _pedir_fecha_consulta("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
     turnos = turnos_service.obtener_turnos_por_medico_y_fecha(medico, fecha)
 
     limpiar()
     encabezado(f"Agenda — {medico.nombre} — {fecha.strftime('%d/%m/%Y')}")
-    info(f"Especialidad: {medico.especialidad}")
+    info(f"Especialidad: {medico.especialidad.nombre}")
 
     if not turnos:
         advertencia("No hay turnos para esta fecha.")
@@ -155,7 +223,7 @@ def agenda_diaria():
         [
             t.horario,
             t.paciente.nombre,
-            t.paciente.cuit,
+            t.paciente.cuil,
             _color_estado(t.estado),
             _formato_duracion(t),
             f"{MAGENTA}*ET{RESET}" if t.entre_turno else "",
@@ -164,7 +232,76 @@ def agenda_diaria():
         for t in turnos
     ]
 
-    tabla(filas, ["Hora", "Paciente", "CUIT", "Estado", "Duración", "ET", "Notas"])
+    tabla(filas, ["Hora", "Paciente", "CUIL", "Estado", "Duración", "ET", "Notas"])
+    pausar()
+
+
+@vista("Turnos por Fecha")
+def turnos_por_fecha():
+    fecha = _pedir_fecha_consulta("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    turnos = turnos_service.obtener_turnos_por_fecha(fecha)
+
+    limpiar()
+    encabezado(f"Turnos — {fecha.strftime('%d/%m/%Y')}")
+
+    if not turnos:
+        advertencia("No hay turnos para esta fecha.")
+        pausar()
+        return
+
+    _mostrar_tabla_turnos(turnos)
+    pausar()
+
+
+@vista("Actualizar Turnos")
+def actualizar_turnos():
+    fecha = _pedir_fecha_consulta("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    turnos = turnos_service.obtener_turnos_por_fecha(fecha)
+
+    limpiar()
+    encabezado(f"Turnos — {fecha.strftime('%d/%m/%Y')}")
+
+    if not turnos:
+        advertencia("No hay turnos para esta fecha.")
+        pausar()
+        return
+
+    _mostrar_tabla_turnos(turnos)
+    id_str = pedir("ID del turno")
+    if not id_str.isdigit():
+        error("ID inválido.")
+        pausar()
+        return
+
+    turno = turnos_service.obtener_turno_por_id(int(id_str))
+    if not turno:
+        error("Turno no encontrado.")
+        pausar()
+        return
+
+    fecha = turno.fecha.strftime("%d/%m/%Y")
+    info(f"Turno #{turno.id}: {turno.paciente.nombre} con {turno.medico.nombre}")
+    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado.nombre}")
+    info(f"Duración estimada: {turno.duracion_min} minutos")
+    info(f"Duración real actual: {turno.duracion_real or 'no registrada'}")
+
+    estados = list(turnos_service.obtener_estados_turno())
+    opciones = [estado.nombre for estado in estados]
+    seleccion = pedir_opcion("Elegí nuevo estado", opciones)
+    nuevo_estado = estados[opciones.index(seleccion)]
+
+    if nuevo_estado.nombre == "ATENDIDO":
+        while True:
+            dur_str = pedir("Duración real (en minutos)")
+            if dur_str.isdigit() and int(dur_str) > 0:
+                break
+            error("Ingresá un número entero positivo.")
+
+        turnos_service.registrar_duracion_real(turno, int(dur_str))
+        exito(f"Turno actualizado: estado '{nuevo_estado.nombre}' y duración {dur_str} minutos.")
+    else:
+        turnos_service.actualizar_estado(turno, nuevo_estado)
+        exito(f"Estado actualizado a '{nuevo_estado.nombre}'.")
     pausar()
 
 
@@ -184,11 +321,14 @@ def cambiar_estado():
 
     fecha = turno.fecha.strftime("%d/%m/%Y")
     info(f"Turno #{turno.id}: {turno.paciente.nombre} con {turno.medico.nombre}")
-    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado}")
+    info(f"Fecha: {fecha} {turno.horario} — Estado actual: {turno.estado.nombre}")
 
-    nuevo_estado = pedir_opcion("Elegí nuevo estado", list(ESTADOS))
+    estados = list(turnos_service.obtener_estados_turno())
+    opciones = [estado.nombre for estado in estados]
+    seleccion = pedir_opcion("Elegí nuevo estado", opciones)
+    nuevo_estado = estados[opciones.index(seleccion)]
     turnos_service.actualizar_estado(turno, nuevo_estado)
-    exito(f"Estado actualizado a '{nuevo_estado}'.")
+    exito(f"Estado actualizado a '{nuevo_estado.nombre}'.")
     pausar()
 
 
@@ -200,7 +340,7 @@ def _mostrar_turnos_pendientes(turnos_pendientes):
             turno_pendiente.fecha.strftime("%d/%m/%Y"),
             turno_pendiente.horario,
             turno_pendiente.medico.nombre,
-            turno_pendiente.medico.especialidad,
+            turno_pendiente.medico.especialidad.nombre,
             _color_estado(turno_pendiente.estado),
             _formato_duracion(turno_pendiente),
         ]
@@ -231,8 +371,8 @@ def registrar_duracion():
         pausar()
         return
 
-    if turno.estado != "ATENDIDO":
-        advertencia(f"El turno tiene estado '{turno.estado}'. Marcarlo como ATENDIDO primero.")
+    if turno.estado.nombre != "ATENDIDO":
+        advertencia(f"El turno tiene estado '{turno.estado.nombre}'. Marcarlo como ATENDIDO primero.")
     fecha = turno.fecha.strftime("%d/%m/%Y")
     info(f"Turno #{turno.id}: {turno.paciente.nombre} — {fecha} {turno.horario}")
     info(f"Duración estimada: {turno.duracion_min} minutos")
@@ -272,7 +412,7 @@ def turnos_por_paciente():
             t.fecha.strftime("%d/%m/%Y"),
             t.horario,
             t.medico.nombre,
-            t.medico.especialidad,
+            t.medico.especialidad.nombre,
             _color_estado(t.estado),
             _formato_duracion(t),
         ]

@@ -41,7 +41,7 @@ Las opciones de listado y búsqueda muestran los siguientes campos (según conte
 | Médico | Texto |
 | Especialidad | Texto |
 | Paciente | Texto |
-| CUIT Paciente | Texto |
+| CUIL Paciente | Texto |
 | Estado | Reservado / Atendido / Cancelado / Ausente |
 | Duración | Minutos (estimada o real) |
 | ET | Entre-turno (marcado) |
@@ -59,7 +59,7 @@ Las opciones de listado y búsqueda muestran los siguientes campos (según conte
 
 | Campo | Tipo | Validación |
 |---|---|---|
-| Paciente | Selección de lista (búsqueda por nombre/CUIT) | Debe existir |
+| Paciente | Selección de lista (búsqueda por nombre/CUIL) | Debe existir |
 | Médico | Selección de lista (solo activos) | Debe existir |
 | Fecha | Fecha (DD/MM/AAAA) | Formato válido |
 | Horario | Hora (HH:MM) | Formato válido · Sin conflicto (o entre-turno con confirmación) |
@@ -86,7 +86,7 @@ Usuario selecciona opción 2
     └─ Selecciona médico activo
         └─ Ingresa fecha
             └─ ¿Hay turnos para ese médico y fecha?
-                ├─ SÍ → Muestra tabla con: Hora, Paciente, CUIT, Estado, Duración, ET, Notas
+                ├─ SÍ → Muestra tabla con: Hora, Paciente, CUIL, Estado, Duración, ET, Notas
                 └─ NO → Mensaje de advertencia → Regresa al menú
 ```
 

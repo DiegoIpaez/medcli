@@ -1,10 +1,11 @@
+from ..utils.constantes import DURACION_ENTRE_TURNO_MIN
 from .models import db
 
 TURNOS_SPECIFIC_TRIGGERS = [
-    """
+    f"""
     CREATE TRIGGER IF NOT EXISTS trg_turnos_duracion_entre_turno
     AFTER INSERT ON turnos WHEN NEW.entre_turno = 1
-    BEGIN UPDATE turnos SET duracion_min = 5 WHERE id = NEW.id; END;
+    BEGIN UPDATE turnos SET duracion_min = {DURACION_ENTRE_TURNO_MIN} WHERE id = NEW.id; END;
     """,
     """
     CREATE TRIGGER IF NOT EXISTS trg_turnos_conflicto_medico_insert
@@ -12,7 +13,8 @@ TURNOS_SPECIFIC_TRIGGERS = [
     WHEN NEW.entre_turno = 0 AND EXISTS (
         SELECT 1 FROM turnos WHERE medico_id = NEW.medico_id 
         AND fecha = NEW.fecha AND horario = NEW.horario 
-        AND estado != 'CANCELADO' AND entre_turno = 0)
+        AND estado_id != (SELECT id FROM turno_estados WHERE nombre = 'CANCELADO') 
+        AND entre_turno = 0)
     BEGIN SELECT RAISE(ABORT, 'Médico ocupado'); END;
     """,
     """
@@ -21,7 +23,8 @@ TURNOS_SPECIFIC_TRIGGERS = [
     WHEN NEW.entre_turno = 0 AND EXISTS (
         SELECT 1 FROM turnos WHERE paciente_id = NEW.paciente_id 
         AND fecha = NEW.fecha AND horario = NEW.horario 
-        AND estado != 'CANCELADO' AND entre_turno = 0)
+        AND estado_id != (SELECT id FROM turno_estados WHERE nombre = 'CANCELADO') 
+        AND entre_turno = 0)
     BEGIN SELECT RAISE(ABORT, 'Paciente ocupado'); END;
     """,
 ]

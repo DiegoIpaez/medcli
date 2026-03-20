@@ -1,12 +1,19 @@
 import sqlite3
 
 from ..ui.mensajes import info
-from .models import Medico, ObraSocial, Paciente, Turno
-from .seeds import seed_obras_sociales
+from .models import Especialidad, Medico, ObraSocial, Paciente, Turno, TurnoEstado
+from .seeds import seed_especialidades, seed_estados_turno, seed_obras_sociales
 from .triggers import crear_timestamp_triggers, crear_turnos_triggers
 
 DB_PATH = "data/clinica.db"
-TIMESTAMP_TABLES = ["obras_sociales", "pacientes", "medicos", "turnos"]
+TIMESTAMP_TABLES = [
+    "especialidades",
+    "obras_sociales",
+    "pacientes",
+    "medicos",
+    "turnos",
+    "turno_estados",
+]
 
 
 def db_exists():
@@ -14,8 +21,9 @@ def db_exists():
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+        placeholders = ", ".join(["?"] * len(TIMESTAMP_TABLES))
         cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name IN (?, ?, ?, ?)",
+            f"SELECT name FROM sqlite_master WHERE type='table' AND name IN ({placeholders})",
             TIMESTAMP_TABLES,
         )
         tables_exist = len(cursor.fetchall()) > 0
@@ -30,9 +38,7 @@ def needs_triggers():
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'trg_%'"
-        )
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'trg_%'")
         existing_triggers = {row[0] for row in cursor.fetchall()}
         conn.close()
 
@@ -51,8 +57,13 @@ def migrate(db):
     if not db_exists():
         info("Creando base de datos por primera vez...")
 
-        db.create_tables([ObraSocial, Paciente, Medico, Turno], safe=True)
+        db.create_tables(
+            [Especialidad, ObraSocial, Paciente, Medico, TurnoEstado, Turno],
+            safe=True,
+        )
+        seed_especialidades(db)
         seed_obras_sociales(db)
+        seed_estados_turno(db)
         crear_timestamp_triggers(TIMESTAMP_TABLES)
         crear_turnos_triggers()
 
