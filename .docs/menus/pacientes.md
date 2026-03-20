@@ -1,6 +1,6 @@
 # Módulo Pacientes — MedCLI
 
-> Gestión integral de pacientes: registro, consulta, edición y eliminación, incluyendo validación de CUIT y asociación a obra social.
+> Gestión integral de pacientes: registro, consulta, edición y eliminación, incluyendo validación de CUIL y asociación a obra social.
 
 ---
 
@@ -37,7 +37,7 @@ Todas las opciones de listado y búsqueda muestran los siguientes campos:
 |---|---|
 | ID | Número |
 | Nombre completo | Texto |
-| CUIT | Texto |
+| CUIL | Texto |
 | Fecha de nacimiento | Fecha (DD/MM/AAAA) |
 | Obra Social | Texto (nombre) o "—" |
 
@@ -64,7 +64,7 @@ Usuario selecciona opción 1
 Usuario selecciona opción 2
     └─ ¿Hay pacientes registrados?
         ├─ NO → Mensaje de advertencia → Regresa al menú
-        └─ SÍ → Solicita término de búsqueda (nombre / CUIT)
+        └─ SÍ → Solicita término de búsqueda (nombre / CUIL)
                 └─ ¿Hay coincidencias parciales?
                     ├─ SÍ → Muestra tabla con resultados encontrados
                     └─ NO → "No se encontraron resultados." → Regresa al menú
@@ -79,16 +79,16 @@ Usuario selecciona opción 2
 | Campo | Tipo | Validación |
 |---|---|---|
 | Nombre completo | Texto | No puede estar vacío |
-| CUIT | Texto | No puede estar vacío · Debe ser válido (11 dígitos, verificador) · Único |
+| CUIL | Texto | No puede estar vacío · Debe ser válido (11 dígitos, verificador) · Único |
 | Fecha de nacimiento | Fecha (DD/MM/AAAA) | Formato válido |
 | Obra Social | Selección de lista | Puede ser "Sin obra social" o una opción válida |
 
 ```
 Usuario selecciona opción 3
-    └─ Ingresa nombre, CUIT, fecha de nacimiento y obra social
-        └─ ¿Datos válidos y CUIT único?
+    └─ Ingresa nombre, CUIL, fecha de nacimiento y obra social
+        └─ ¿Datos válidos y CUIL único?
             ├─ SÍ → Registra paciente → Mensaje de éxito
-            └─ NO → Muestra error (CUIT inválido o duplicado, fecha inválida, etc.) → No registra
+            └─ NO → Muestra error (CUIL inválido o duplicado, fecha inválida, etc.) → No registra
 ```
 
 ---
@@ -100,7 +100,7 @@ Usuario selecciona opción 3
 | Campo | Tipo |
 |---|---|
 | Nombre completo | Texto |
-| CUIT | Texto (valida formato y unicidad) |
+| CUIL | Texto (valida formato y unicidad) |
 | Fecha de nacimiento | Fecha (DD/MM/AAAA) |
 | Obra Social | Selección de lista |
 

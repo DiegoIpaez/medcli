@@ -8,14 +8,14 @@ def obtener_all_obras_sociales():
     return listar_obras_sociales()
 
 
-def cuit_existe(cuit):
-    return Paciente.select().where(Paciente.cuit == cuit).exists()
+def cuil_existe(cuil):
+    return Paciente.select().where(Paciente.cuil == cuil).exists()
 
 
-def crear_paciente(nombre, cuit, fecha_nac, obra_social):
+def crear_paciente(nombre, cuil, fecha_nac, obra_social):
     return Paciente.create(
         nombre=nombre.upper(),
-        cuit=cuit,
+        cuil=cuil,
         fecha_nacimiento=fecha_nac,
         obra_social=obra_social,
     )
@@ -26,7 +26,7 @@ def obtener_todos_los_pacientes():
 
 
 def buscar_pacientes(termino):
-    return Paciente.select().where((Paciente.nombre.contains(termino)) | (Paciente.cuit.contains(termino))).order_by(Paciente.nombre)
+    return Paciente.select().where((Paciente.nombre.contains(termino)) | (Paciente.cuil.contains(termino))).order_by(Paciente.nombre)
 
 
 def obtener_paciente_por_id(id):
@@ -36,9 +36,9 @@ def obtener_paciente_por_id(id):
         return None
 
 
-def actualizar_paciente(paciente, nombre, cuit, fecha_nac, obra_social):
+def actualizar_paciente(paciente, nombre, cuil, fecha_nac, obra_social):
     paciente.nombre = nombre.upper()
-    paciente.cuit = cuit
+    paciente.cuil = cuil
     paciente.fecha_nacimiento = fecha_nac
     paciente.obra_social = obra_social
     paciente.save()

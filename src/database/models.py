@@ -65,7 +65,7 @@ class ObraSocial(BaseModel):
 class Paciente(BaseModel):
     id = AutoField(primary_key=True)
     nombre = TextField()
-    cuit = TextField(unique=True)
+    cuil = TextField(unique=True)
     fecha_nacimiento = DateField()
     obra_social = ForeignKeyField(ObraSocial, column_name="obra_social_id", backref="pacientes", null=True)
     creado_el = DateTimeField(default=datetime.datetime.now)

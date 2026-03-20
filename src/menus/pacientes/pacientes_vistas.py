@@ -18,7 +18,7 @@ from ...ui.mensajes import (
     exito,
     info,
 )
-from ...utils.cuit import validar_cuit
+from ...utils.cuil import validar_cuil
 from ...utils.decorators import vista
 from . import pacientes_servicio
 
@@ -54,22 +54,22 @@ def _pedir_fecha(prompt, default=None):
     return datetime.datetime.strptime(valor, "%d/%m/%Y").date()
 
 
-def _pedir_cuit(cuit_actual=None):
+def _pedir_cuil(cuil_actual=None):
     def validador(valor):
-        return validar_cuit(valor)
+        return validar_cuil(valor)
 
     while True:
-        cuit = pedir_validado(
-            "CUIT",
+        cuil = pedir_validado(
+            "CUIL",
             validador,
-            "CUIT inválido. Debe tener 11 dígitos y dígito verificador correcto.",
-            requerido=cuit_actual is None,
-            default=cuit_actual or "",
+            "CUIL inválido. Debe tener 11 dígitos y dígito verificador correcto.",
+            requerido=cuil_actual is None,
+            default=cuil_actual or "",
         )
-        if cuit != cuit_actual and pacientes_servicio.cuit_existe(cuit):
-            error(f"Ya existe un paciente con CUIT '{cuit}'.")
+        if cuil != cuil_actual and pacientes_servicio.cuil_existe(cuil):
+            error(f"Ya existe un paciente con CUIL '{cuil}'.")
             continue
-        return cuit
+        return cuil
 
 
 def _filas_pacientes(pacientes):
@@ -77,7 +77,7 @@ def _filas_pacientes(pacientes):
         [
             p.id,
             p.nombre,
-            p.cuit,
+            p.cuil,
             p.fecha_nacimiento.strftime("%d/%m/%Y"),
             p.obra_social.nombre if p.obra_social else "—",
         ]
@@ -88,20 +88,20 @@ def _filas_pacientes(pacientes):
 def _mostrar_pacientes(pacientes):
     tabla(
         _filas_pacientes(pacientes),
-        ["ID", "Nombre", "CUIT", "Nacimiento", "Obra Social"],
+        ["ID", "Nombre", "CUIL", "Nacimiento", "Obra Social"],
     )
 
 
 @vista("Registrar Nuevo Paciente")
 def crear_paciente():
     nombre = pedir("Nombre completo")
-    cuit = _pedir_cuit()
+    cuil = _pedir_cuil()
     fecha_nac = _pedir_fecha("Fecha de nacimiento (DD/MM/AAAA)")
 
     obras = pacientes_servicio.obtener_all_obras_sociales()
     obra_social = _seleccionar_obra_social(obras, "Elegí obra social")
 
-    pacientes_servicio.crear_paciente(nombre, cuit, fecha_nac, obra_social)
+    pacientes_servicio.crear_paciente(nombre, cuil, fecha_nac, obra_social)
     exito(f"Paciente '{nombre.upper()}' registrado exitosamente.")
     pausar()
 
@@ -127,7 +127,7 @@ def buscar_paciente():
         pausar()
         return
 
-    termino = pedir("Nombre o CUIT a buscar")
+    termino = pedir("Nombre o CUIL a buscar")
     resultados = pacientes_servicio.buscar_pacientes(termino)
 
     if not resultados:
@@ -137,7 +137,7 @@ def buscar_paciente():
 
     tabla(
         _filas_pacientes(resultados),
-        ["ID", "Nombre", "CUIT", "Nacimiento", "Obra Social"],
+        ["ID", "Nombre", "CUIL", "Nacimiento", "Obra Social"],
     )
     pausar()
 
@@ -165,11 +165,11 @@ def editar_paciente():
         return
 
     os_actual = paciente.obra_social.nombre if paciente.obra_social else "Sin obra social"
-    info(f"Editando: {paciente.nombre} | {paciente.cuit} | {os_actual}")
+    info(f"Editando: {paciente.nombre} | {paciente.cuil} | {os_actual}")
     print(f"  {DIM}(Dejá vacío para mantener el valor actual){RESET}\n")
 
     nombre = pedir("Nombre completo", requerido=False, default=paciente.nombre)
-    cuit = _pedir_cuit(cuit_actual=paciente.cuit)
+    cuil = _pedir_cuil(cuil_actual=paciente.cuil)
     fecha_nac = _pedir_fecha(
         "Fecha de nacimiento (DD/MM/AAAA)",
         default=paciente.fecha_nacimiento.strftime("%d/%m/%Y"),
@@ -182,7 +182,7 @@ def editar_paciente():
         fallback=paciente.obra_social,
     )
 
-    pacientes_servicio.actualizar_paciente(paciente, nombre, cuit, fecha_nac, obra_social)
+    pacientes_servicio.actualizar_paciente(paciente, nombre, cuil, fecha_nac, obra_social)
     exito(f"Paciente '{nombre.upper()}' actualizado.")
     pausar()
 

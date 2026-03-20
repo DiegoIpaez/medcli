@@ -28,7 +28,7 @@ def obtener_turnos_pendientes():
 
 
 def buscar_pacientes(termino):
-    return Paciente.select().where((Paciente.nombre.contains(termino)) | (Paciente.cuit.contains(termino)))
+    return Paciente.select().where((Paciente.nombre.contains(termino)) | (Paciente.cuil.contains(termino)))
 
 
 def verificar_conflicto(medico_id, fecha, horario, excluir_id=None):

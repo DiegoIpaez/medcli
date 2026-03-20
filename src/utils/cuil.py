@@ -1,39 +1,36 @@
-def validar_cuit(cuit):
+def validar_cuil(cuil):
     """
-    Valida un CUIT/CUIL argentino verificando formato y dígito verificador.
+    Valida un CUIL argentino verificando formato y dígito verificador.
 
     El algoritmo multiplica los primeros 10 dígitos por una serie de
     multiplicadores fijos, suma los resultados, y compara el resto
-    contra el último dígito del CUIT.
+    contra el último dígito del CUIL.
 
     Ejemplos:
-        >>> validar_cuit("20-12345678-9")
+        >>> validar_cuil("20-12345678-9")
         True
-        >>> validar_cuit("00-00000000-0")
+        >>> validar_cuil("00-00000000-0")
         False
 
     Args:
-        cuit: CUIT/CUIL a validar. Acepta guiones y espacios.
+        cuil: CUIL a validar. Acepta guiones y espacios.
 
     Returns:
-        True si el CUIT es válido, False si no.
+        True si el CUIL es válido, False si no.
     """
     MULTIPLICADORES = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
-    LONGITUD_CUIT = 11
+    LONGITUD_CUIL = 11
     MODULO = 11
     DIGITO_NULO = 0
     DIGITO_INVALIDO = 10
     DIGITO_REEMPLAZO = 9
 
-    cuit = cuit.replace("-", "").replace(" ", "")
+    cuil = cuil.replace("-", "").replace(" ", "")
 
-    if len(cuit) != LONGITUD_CUIT or not cuit.isdigit():
+    if len(cuil) != LONGITUD_CUIL or not cuil.isdigit():
         return False
 
-    suma = sum(
-        int(digito) * multiplicador
-        for digito, multiplicador in zip(cuit[:10], MULTIPLICADORES)
-    )
+    suma = sum(int(digito) * multiplicador for digito, multiplicador in zip(cuil[:10], MULTIPLICADORES))
     digito_calculado = MODULO - (suma % MODULO)
 
     if digito_calculado == MODULO:
@@ -41,5 +38,5 @@ def validar_cuit(cuit):
     if digito_calculado == DIGITO_INVALIDO:
         digito_calculado = DIGITO_REEMPLAZO
 
-    digito_real = int(cuit[-1])
+    digito_real = int(cuil[-1])
     return digito_calculado == digito_real

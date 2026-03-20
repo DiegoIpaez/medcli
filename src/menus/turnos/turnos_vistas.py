@@ -109,12 +109,12 @@ def _seleccionar_medico():
 
 
 def _seleccionar_paciente():
-    termino = pedir("Buscar paciente (nombre o CUIT)")
+    termino = pedir("Buscar paciente (nombre o CUIL)")
     pacientes = turnos_service.buscar_pacientes(termino)
     if not pacientes:
         advertencia("No se encontraron pacientes.")
         return None
-    opciones = [f"{paciente.nombre} — DNI: {paciente.cuit}" for paciente in pacientes]
+    opciones = [f"{paciente.nombre} — CUIL: {paciente.cuil}" for paciente in pacientes]
     seleccion = pedir_opcion("Elegí paciente", opciones)
     return pacientes[opciones.index(seleccion)]
 
@@ -130,7 +130,7 @@ def _mostrar_tabla_turnos(turnos):
             t.fecha.strftime("%d/%m/%Y"),
             t.horario,
             t.paciente.nombre,
-            t.paciente.cuit,
+            t.paciente.cuil,
             t.medico.nombre,
             t.medico.especialidad.nombre,
             _color_estado(t.estado),
@@ -143,7 +143,7 @@ def _mostrar_tabla_turnos(turnos):
 
     tabla(
         filas,
-        ["ID", "Fecha", "Hora", "Paciente", "CUIT", "Médico", "Especialidad", "Estado", "Duración", "ET", "Notas"],
+        ["ID", "Fecha", "Hora", "Paciente", "CUIL", "Médico", "Especialidad", "Estado", "Duración", "ET", "Notas"],
     )
 
 
@@ -201,7 +201,7 @@ def agenda_diaria():
         [
             t.horario,
             t.paciente.nombre,
-            t.paciente.cuit,
+            t.paciente.cuil,
             _color_estado(t.estado),
             _formato_duracion(t),
             f"{MAGENTA}*ET{RESET}" if t.entre_turno else "",
@@ -210,7 +210,7 @@ def agenda_diaria():
         for t in turnos
     ]
 
-    tabla(filas, ["Hora", "Paciente", "CUIT", "Estado", "Duración", "ET", "Notas"])
+    tabla(filas, ["Hora", "Paciente", "CUIL", "Estado", "Duración", "ET", "Notas"])
     pausar()
 
 
