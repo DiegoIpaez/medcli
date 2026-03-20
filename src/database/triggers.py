@@ -1,10 +1,11 @@
+from ..utils.constantes import DURACION_ENTRE_TURNO_MIN
 from .models import db
 
 TURNOS_SPECIFIC_TRIGGERS = [
-    """
+    f"""
     CREATE TRIGGER IF NOT EXISTS trg_turnos_duracion_entre_turno
     AFTER INSERT ON turnos WHEN NEW.entre_turno = 1
-    BEGIN UPDATE turnos SET duracion_min = 5 WHERE id = NEW.id; END;
+    BEGIN UPDATE turnos SET duracion_min = {DURACION_ENTRE_TURNO_MIN} WHERE id = NEW.id; END;
     """,
     """
     CREATE TRIGGER IF NOT EXISTS trg_turnos_conflicto_medico_insert

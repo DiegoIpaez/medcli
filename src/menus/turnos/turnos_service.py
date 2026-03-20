@@ -1,6 +1,7 @@
 import datetime
 
 from ...database.models import Medico, Paciente, Turno, TurnoEstado
+from ...utils.constantes import DURACION_TURNO_POR_DEFECTO_MIN
 
 
 def obtener_medicos_activos():
@@ -39,7 +40,7 @@ def verificar_conflicto(medico_id, fecha, horario, excluir_id=None):
     for t in query:
         t_exist = datetime.datetime.strptime(t.horario, "%H:%M")
         diff = abs((t_nuevo - t_exist).total_seconds()) / 60
-        if diff < 30:
+        if diff < DURACION_TURNO_POR_DEFECTO_MIN:
             return True
     return False
 
@@ -52,7 +53,7 @@ def crear_turno(paciente, medico, fecha, horario, entre_turno, notas):
         horario=horario,
         estado=obtener_estado_por_nombre("RESERVADO"),
         entre_turno=entre_turno,
-        duracion_min=30,
+        duracion_min=DURACION_TURNO_POR_DEFECTO_MIN,
         duracion_real=None,
         notas=notas or None,
     )

@@ -21,7 +21,11 @@ from ...ui.mensajes import (
     exito,
     info,
 )
-from ...utils.constantes import HORARIO_APERTURA, HORARIO_CIERRE
+from ...utils.constantes import (
+    DURACION_TURNO_POR_DEFECTO_MIN,
+    HORARIO_APERTURA,
+    HORARIO_CIERRE,
+)
 from ...utils.decorators import vista
 from . import turnos_service
 
@@ -81,16 +85,22 @@ def _pedir_horario(prompt, fecha):
     while True:
         horario = pedir(prompt)
         try:
-            dt = datetime.datetime.strptime(horario, "%H:%M")
-            if not (HORARIO_APERTURA <= dt.hour <= HORARIO_CIERRE):
-                error(f"El horario debe estar entre {HORARIO_APERTURA:02d}:00 y {HORARIO_CIERRE:02d}:00.")
+            fecha_actual = datetime.date.today()
+            hora_actual = datetime.datetime.strptime(horario, "%H:%M")
+            hora_cierre = datetime.time(HORARIO_CIERRE, 0)
+            hora_apertura = datetime.time(HORARIO_APERTURA, 0)
+
+            fecha_limite = datetime.datetime.combine(fecha_actual, hora_cierre)
+            hora_limite = fecha_limite - datetime.timedelta(minutes=DURACION_TURNO_POR_DEFECTO_MIN)
+
+            if not (hora_apertura <= hora_actual.time() <= hora_limite.time()):
+                error(f"El horario debe estar entre {HORARIO_APERTURA:02d}:00 y {hora_limite.strftime('%H:%M')} (último turno posible).")
                 continue
 
-            if fecha == datetime.date.today():
+            if fecha == fecha_actual:
                 ahora = datetime.datetime.now().time().replace(second=0, microsecond=0)
-                if dt.time() <= ahora:
-                    msg_err = f"El horario debe ser posterior a {ahora.strftime('%H:%M')}."
-                    error(msg_err)
+                if hora_actual.time() <= ahora:
+                    error(f"El horario debe ser posterior a {ahora.strftime('%H:%M')}.")
                     continue
 
             return horario
@@ -143,7 +153,19 @@ def _mostrar_tabla_turnos(turnos):
 
     tabla(
         filas,
-        ["ID", "Fecha", "Hora", "Paciente", "CUIL", "Médico", "Especialidad", "Estado", "Duración", "ET", "Notas"],
+        [
+            "ID",
+            "Fecha",
+            "Hora",
+            "Paciente",
+            "CUIL",
+            "Médico",
+            "Especialidad",
+            "Estado",
+            "Duración",
+            "ET",
+            "Notas",
+        ],
     )
 
 
@@ -185,7 +207,7 @@ def agenda_diaria():
         pausar()
         return
 
-    fecha = _pedir_fecha("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
+    fecha = _pedir_fecha_consulta("Ingrese Fecha ", default=datetime.date.today().strftime("%d/%m/%Y"))
     turnos = turnos_service.obtener_turnos_por_medico_y_fecha(medico, fecha)
 
     limpiar()
